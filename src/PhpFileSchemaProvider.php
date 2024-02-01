@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Cycle\Schema\Provider;
 
+use Closure;
 use Cycle\Schema\Provider\Exception\ConfigurationException;
 use Cycle\Schema\Provider\Exception\SchemaProviderException;
-use Cycle\Schema\Provider\Path\ResolverInterface;
-use Cycle\Schema\Provider\Path\SimpleResolver;
 use Cycle\Schema\Renderer\PhpSchemaRenderer;
 use Spiral\Files\Files;
 use Spiral\Files\FilesInterface;
@@ -20,15 +19,41 @@ final class PhpFileSchemaProvider implements SchemaProviderInterface
     private string $file = '';
     private int $mode = self::MODE_READ_AND_WRITE;
 
-    private ResolverInterface $pathResolver;
+    /** @var Closure(non-empty-string): non-empty-string */
+    private Closure $pathResolver;
     private FilesInterface $files;
 
-    public function __construct(?ResolverInterface $resolver = null, ?FilesInterface $files = null)
+    /**
+     * @param null|callable(non-empty-string): non-empty-string $pathResolver A function that resolves
+     *        framework-specific file paths.
+     */
+    public function __construct(?callable $pathResolver = null, ?FilesInterface $files = null)
     {
-        $this->pathResolver = $resolver ?? new SimpleResolver();
         $this->files = $files ?? new Files();
+        $this->pathResolver = $pathResolver === null
+            ? static fn (string $path): string => $path
+            : Closure::fromCallable($pathResolver);
     }
 
+    /**
+     * Create a configuration array for the {@see self::withConfig()} method.
+     */
+    public static function config(
+        string $file,
+        int $mode = self::MODE_READ_AND_WRITE,
+    ): array {
+        return [
+            'file' => $file,
+            'mode' => $mode,
+        ];
+    }
+
+    /**
+     * @param array{
+     *     file: non-empty-string,
+     *     mode?: self::MODE_READ_AND_WRITE|self::MODE_WRITE_ONLY,
+     * } $config
+     */
     public function withConfig(array $config): self
     {
         $new = clone $this;
@@ -37,7 +62,7 @@ final class PhpFileSchemaProvider implements SchemaProviderInterface
         if ($this->file === '' && !array_key_exists('file', $config)) {
             throw new ConfigurationException('The `file` parameter is required.');
         }
-        $new->file = $this->pathResolver->resolve($config['file']);
+        $new->file = ($this->pathResolver)($config['file']);
 
         $new->mode = $config['mode'] ?? $this->mode;
 
@@ -67,6 +92,15 @@ final class PhpFileSchemaProvider implements SchemaProviderInterface
         return $schema;
     }
 
+    public function clear(): bool
+    {
+        try {
+            return $this->removeFile();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
     private function write(array $schema): bool
     {
         if (\basename($this->file) === '') {
@@ -92,15 +126,6 @@ final class PhpFileSchemaProvider implements SchemaProviderInterface
         }
 
         return $this->files->delete($this->file);
-    }
-
-    public function clear(): bool
-    {
-        try {
-            return $this->removeFile();
-        } catch (\Throwable $e) {
-            return false;
-        }
     }
 
     private function isReadable(): bool
