@@ -49,8 +49,11 @@ use Cycle\Schema\Provider\SimpleCacheSchemaProvider;
 use Cycle\Schema\Provider\Support\SchemaProviderPipeline;
 
 $pipeline = (new SchemaProviderPipeline($container))->withConfig([
-    SimpleCacheSchemaProvider::class => ['key' => 'cycle-schema'],
-    FromFilesSchemaProvider::class => ['files' => ['runtime/schema1.php', 'runtime/schema2.php']],
+    SimpleCacheSchemaProvider::class => SimpleCacheSchemaProvider::config(key: 'cycle-schema'),
+    FromFilesSchemaProvider::class => FromFilesSchemaProvider::config(files: [
+        'runtime/schema1.php',
+        'runtime/schema2.php',
+    ]),
 ]);
 
 $schema = new Schema($pipeline->read());
@@ -73,9 +76,12 @@ use Cycle\Schema\Provider\Support\MergeSchemaProvider;
 use Cycle\Schema\Provider\Support\SchemaProviderPipeline;
 
 $pipeline = (new SchemaProviderPipeline($container))->withConfig([
-    SimpleCacheSchemaProvider::class => ['key' => 'cycle-schema'],
+    SimpleCacheSchemaProvider::class => SimpleCacheSchemaProvider::config(key: 'cycle-schema'),
     MergeSchemaProvider::class => [
-        FromFilesSchemaProvider::class => ['files' => ['runtime/schema1.php', 'runtime/schema2.php']],
+        FromFilesSchemaProvider::class => FromFilesSchemaProvider::config(files: [
+            'runtime/schema1.php',
+            'runtime/schema2.php',
+        ]),
         CustomSchemaProvider::class => ['some' => 'config'],
     ],
 ]);

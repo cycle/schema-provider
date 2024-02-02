@@ -16,7 +16,7 @@ use Cycle\Schema\Provider\Support\SchemaMerger;
 final class FromFilesSchemaProvider implements SchemaProviderInterface
 {
     /**
-     * @var array<string> Schema files
+     * @var array<non-empty-string> Schema files
      */
     private array $files = [];
 
@@ -36,9 +36,22 @@ final class FromFilesSchemaProvider implements SchemaProviderInterface
      */
     public function __construct(?callable $pathResolver = null)
     {
+        /** @psalm-suppress PropertyTypeCoercion */
         $this->pathResolver = $pathResolver === null
             ? static fn (string $path): string => $path
             : \Closure::fromCallable($pathResolver);
+    }
+
+    /**
+     * Create a configuration array for the {@see self::withConfig()} method.
+     * @param array<non-empty-string> $files
+     */
+    public static function config(array $files, bool $strict = false): array
+    {
+        return [
+            'files' => $files,
+            'strict' => $strict,
+        ];
     }
 
     public function withConfig(array $config): self
@@ -57,9 +70,9 @@ final class FromFilesSchemaProvider implements SchemaProviderInterface
         }
 
         $files = \array_map(
-            function ($file) {
-                if (!\is_string($file)) {
-                    throw new ConfigurationException('The `files` parameter must contain string values.');
+            function (mixed $file) {
+                if (!\is_string($file) || $file === '') {
+                    throw new ConfigurationException('The `files` parameter must contain non-empty string values.');
                 }
                 return ($this->pathResolver)($file);
             },

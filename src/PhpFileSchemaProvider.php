@@ -31,6 +31,7 @@ final class PhpFileSchemaProvider implements SchemaProviderInterface
     public function __construct(?callable $pathResolver = null, ?FilesInterface $files = null)
     {
         $this->files = $files ?? new Files();
+        /** @psalm-suppress PropertyTypeCoercion */
         $this->pathResolver = $pathResolver === null
             ? static fn (string $path): string => $path
             : \Closure::fromCallable($pathResolver);
@@ -39,22 +40,14 @@ final class PhpFileSchemaProvider implements SchemaProviderInterface
     /**
      * Create a configuration array for the {@see self::withConfig()} method.
      */
-    public static function config(
-        string $file,
-        int $mode = self::MODE_READ_AND_WRITE,
-    ): array {
+    public static function config(string $file, int $mode = self::MODE_READ_AND_WRITE): array
+    {
         return [
             'file' => $file,
             'mode' => $mode,
         ];
     }
 
-    /**
-     * @param array{
-     *     file: non-empty-string,
-     *     mode?: self::MODE_READ_AND_WRITE|self::MODE_WRITE_ONLY,
-     * } $config
-     */
     public function withConfig(array $config): self
     {
         $new = clone $this;

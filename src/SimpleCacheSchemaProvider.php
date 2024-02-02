@@ -10,11 +10,26 @@ use Psr\SimpleCache\CacheInterface;
 final class SimpleCacheSchemaProvider implements SchemaProviderInterface
 {
     public const DEFAULT_KEY = 'Cycle-ORM-Schema';
+
+    /**
+     * @var non-empty-string
+     */
     private string $key = self::DEFAULT_KEY;
 
     public function __construct(
         private CacheInterface $cache
     ) {
+    }
+
+    /**
+     * Create a configuration array for the {@see self::withConfig()} method.
+     * @param non-empty-string $key
+     */
+    public static function config(string $key): array
+    {
+        return [
+            'key' => $key,
+        ];
     }
 
     public function withConfig(array $config): self

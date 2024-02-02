@@ -10,25 +10,26 @@ use Cycle\Schema\Provider\Exception\DuplicateRoleException;
 use Cycle\Schema\Provider\Exception\SchemaFileNotFoundException;
 use Cycle\Schema\Provider\FromFilesSchemaProvider;
 
-class FromFilesSchemaProviderTest extends BaseSchemaProvider
+final class FromFilesSchemaProviderTest extends BaseSchemaProvider
 {
     protected const READ_CONFIG = ['files' => [__DIR__ . '/Stub/FromFilesSchemaProvider/schema1.php']];
     protected const READ_CONFIG_SCHEMA = ['user' => []];
 
-    public static function EmptyConfigProvider(): array
+    public function testConfig(): void
     {
-        return [
-            [
-                [],
-            ],
-            [
-                ['files' => []],
-            ],
-        ];
+        $this->assertSame(
+            ['files' => ['foo', 'bar'], 'strict' => false],
+            FromFilesSchemaProvider::config(['foo', 'bar'])
+        );
+
+        $this->assertSame(
+            ['files' => ['foo', 'bar'], 'strict' => true],
+            FromFilesSchemaProvider::config(['foo', 'bar'], true)
+        );
     }
 
     /**
-     * @dataProvider EmptyConfigProvider
+     * @dataProvider emptyConfigProvider
      */
     public function testWithConfigEmpty(array $config): void
     {
@@ -48,26 +49,15 @@ class FromFilesSchemaProviderTest extends BaseSchemaProvider
         $schemaProvider->withConfig(['files' => __DIR__ . '/Stub/FromFilesSchemaProvider/schema1.php']);
     }
 
-    public static function FileListBadValuesProvider(): array
-    {
-        return [
-            [null],
-            [42],
-            [STDIN],
-            [[]],
-            [new \SplFileInfo(__FILE__)],
-        ];
-    }
-
     /**
-     * @dataProvider FileListBadValuesProvider
+     * @dataProvider fileListBadValuesProvider
      */
     public function testWithConfigInvalidValueInFileList($value): void
     {
         $schemaProvider = $this->createSchemaProvider();
 
         $this->expectException(ConfigurationException::class);
-        $this->expectExceptionMessage('The `files` parameter must contain string values.');
+        $this->expectExceptionMessage('The `files` parameter must contain non-empty string values.');
         $schemaProvider->withConfig(['files' => [$value]]);
     }
 
@@ -202,6 +192,22 @@ class FromFilesSchemaProviderTest extends BaseSchemaProvider
     {
         $schemaProvider = $this->createSchemaProvider();
         $this->assertFalse($schemaProvider->clear());
+    }
+
+    public static function emptyConfigProvider(): \Traversable
+    {
+        yield [[]];
+        yield [['files' => []]];
+    }
+
+    public static function fileListBadValuesProvider(): \Traversable
+    {
+        yield [null];
+        yield [42];
+        yield [STDIN];
+        yield [[]];
+        yield [['']];
+        yield [new \SplFileInfo(__FILE__)];
     }
 
     protected function createSchemaProvider(array $config = null): FromFilesSchemaProvider

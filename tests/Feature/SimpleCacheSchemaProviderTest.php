@@ -18,6 +18,14 @@ final class SimpleCacheSchemaProviderTest extends BaseSchemaProvider
 
     private SimpleCacheActionLogger $cacheService;
 
+    public function testConfig(): void
+    {
+        $this->assertSame(
+            ['key' => 'foo'],
+            SimpleCacheSchemaProvider::config('foo')
+        );
+    }
+
     public function testDefaultState(): void
     {
         $provider = $this->createSchemaProvider();
