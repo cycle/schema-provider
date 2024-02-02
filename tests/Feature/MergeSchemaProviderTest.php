@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Cycle\Schema\Provider\Tests\Feature\Support;
+namespace Cycle\Schema\Provider\Tests\Feature;
 
 use Cycle\ORM\SchemaInterface as Schema;
 use Cycle\Schema\Provider\Exception\DuplicateRoleException;
-use Cycle\Schema\Provider\Support\MergeSchemaProvider;
+use Cycle\Schema\Provider\MergeSchemaProvider;
 use Cycle\Schema\Provider\Tests\Feature\Stub\ArraySchemaProvider;
+use Cycle\Schema\Provider\Tests\Feature\Support\BaseProviderCollector;
 
 final class MergeSchemaProviderTest extends BaseProviderCollector
 {
