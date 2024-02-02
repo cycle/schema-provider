@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Cycle\Schema\Provider;
 
-use Closure;
 use Cycle\Schema\Provider\Exception\ConfigurationException;
 use Cycle\Schema\Provider\Exception\SchemaProviderException;
 use Cycle\Schema\Renderer\PhpSchemaRenderer;
@@ -19,8 +18,10 @@ final class PhpFileSchemaProvider implements SchemaProviderInterface
     private string $file = '';
     private int $mode = self::MODE_READ_AND_WRITE;
 
-    /** @var Closure(non-empty-string): non-empty-string */
-    private Closure $pathResolver;
+    /**
+     * @var \Closure(non-empty-string): non-empty-string
+     */
+    private \Closure $pathResolver;
     private FilesInterface $files;
 
     /**
@@ -32,7 +33,7 @@ final class PhpFileSchemaProvider implements SchemaProviderInterface
         $this->files = $files ?? new Files();
         $this->pathResolver = $pathResolver === null
             ? static fn (string $path): string => $path
-            : Closure::fromCallable($pathResolver);
+            : \Closure::fromCallable($pathResolver);
     }
 
     /**

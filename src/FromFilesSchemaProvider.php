@@ -6,8 +6,6 @@ namespace Cycle\Schema\Provider;
 
 use Cycle\Schema\Provider\Exception\ConfigurationException;
 use Cycle\Schema\Provider\Exception\SchemaFileNotFoundException;
-use Cycle\Schema\Provider\Path\ResolverInterface;
-use Cycle\Schema\Provider\Path\SimpleResolver;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobIterator;
 use Cycle\Schema\Provider\Support\SchemaMerger;
@@ -27,11 +25,20 @@ final class FromFilesSchemaProvider implements SchemaProviderInterface
      */
     private bool $strict = false;
 
-    private ResolverInterface $pathResolver;
+    /**
+     * @var \Closure(non-empty-string): non-empty-string
+     */
+    private \Closure $pathResolver;
 
-    public function __construct(?ResolverInterface $resolver = null)
+    /**
+     * @param null|callable(non-empty-string): non-empty-string $pathResolver A function that resolves
+     *        framework-specific file paths.
+     */
+    public function __construct(?callable $pathResolver = null)
     {
-        $this->pathResolver = $resolver ?? new SimpleResolver();
+        $this->pathResolver = $pathResolver === null
+            ? static fn (string $path): string => $path
+            : \Closure::fromCallable($pathResolver);
     }
 
     public function withConfig(array $config): self
@@ -54,7 +61,7 @@ final class FromFilesSchemaProvider implements SchemaProviderInterface
                 if (!\is_string($file)) {
                     throw new ConfigurationException('The `files` parameter must contain string values.');
                 }
-                return $this->pathResolver->resolve($file);
+                return ($this->pathResolver)($file);
             },
             $files
         );
