@@ -66,13 +66,13 @@ in your container. It uses this interface to retrieve and store the schema array
 
 ### Building DB schema from different providers
 
-To merge schema parts obtained from different providers, use `Cycle\Schema\Provider\Support\MergeSchemaProvider`.
+To merge schema parts obtained from different providers, use `Cycle\Schema\Provider\MergeSchemaProvider`.
 
 ```php
 use Cycle\ORM\Schema;
 use Cycle\Schema\Provider\FromFilesSchemaProvider;
 use Cycle\Schema\Provider\SimpleCacheSchemaProvider;
-use Cycle\Schema\Provider\Support\MergeSchemaProvider;
+use Cycle\Schema\Provider\MergeSchemaProvider;
 use Cycle\Schema\Provider\Support\SchemaProviderPipeline;
 
 $pipeline = (new SchemaProviderPipeline($container))->withConfig([

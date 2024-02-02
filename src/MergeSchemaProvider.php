@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Cycle\Schema\Provider\Support;
+namespace Cycle\Schema\Provider;
 
 use Cycle\Schema\Provider\Exception\SchemaProviderException;
-use Cycle\Schema\Provider\SchemaProviderInterface;
+use Cycle\Schema\Provider\Support\BaseProviderCollector;
+use Cycle\Schema\Provider\Support\SchemaMerger;
 
 /**
  * A class for working with a group of schema providers.
