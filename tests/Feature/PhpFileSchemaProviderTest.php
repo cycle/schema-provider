@@ -27,6 +27,19 @@ final class PhpFileSchemaProviderTest extends BaseSchemaProvider
         $this->removeTmpFile();
     }
 
+    public function testConfig(): void
+    {
+        $this->assertSame(
+            ['file' => 'foo', 'mode' => PhpFileSchemaProvider::MODE_READ_AND_WRITE],
+            PhpFileSchemaProvider::config('foo')
+        );
+
+        $this->assertSame(
+            ['file' => 'foo', 'mode' => PhpFileSchemaProvider::MODE_WRITE_ONLY],
+            PhpFileSchemaProvider::config('foo', PhpFileSchemaProvider::MODE_WRITE_ONLY)
+        );
+    }
+
     public function testReadFromNextProvider(): void
     {
         $provider1 = $this->createSchemaProvider(self::WRITE_CONFIG);
