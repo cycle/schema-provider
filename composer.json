@@ -24,14 +24,14 @@
     "homepage": "https://cycle-orm.dev",
     "support": {
         "docs": "https://cycle-orm.dev/docs",
+        "source": "https://github.com/cycle/schema-provider",
         "issues": "https://github.com/cycle/schema-provider/issues",
-        "forum": "https://forum.spiral.dev",
-        "chat": "https://discord.gg/V6EK4he"
+        "chat": "https://discord.gg/spiralphp"
     },
     "funding": [
         {
             "type": "github",
-            "url": "https://github.com/sponsors/roadrunner-server"
+            "url": "https://github.com/sponsors/cycle"
         }
     ],
     "require": {
