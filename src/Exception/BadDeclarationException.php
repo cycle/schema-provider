@@ -19,7 +19,7 @@ class BadDeclarationException extends \Exception
             '%s should be instance of %s or its declaration. %s was received instead.',
             $parameter,
             $class,
-            $type
+            $type,
         ));
     }
 }

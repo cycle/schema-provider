@@ -16,7 +16,6 @@ class ConfigurableSchemaProvider implements SchemaProviderInterface
     public const EXCEPTION_ON_CLEAR = 'exception_on_clear';
 
     protected ?array $schema;
-
     private bool $writable = true;
     private bool $clearable = true;
     private bool $exceptionOnRead = false;

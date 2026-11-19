@@ -6,9 +6,9 @@ namespace Cycle\Schema\Provider;
 
 use Cycle\Schema\Provider\Exception\ConfigurationException;
 use Cycle\Schema\Provider\Exception\SchemaFileNotFoundException;
+use Cycle\Schema\Provider\Support\SchemaMerger;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobIterator;
-use Cycle\Schema\Provider\Support\SchemaMerger;
 
 /**
  * Be careful, using this class may be insecure.
@@ -38,7 +38,7 @@ final class FromFilesSchemaProvider implements SchemaProviderInterface
     {
         /** @psalm-suppress PropertyTypeCoercion */
         $this->pathResolver = $pathResolver === null
-            ? static fn (string $path): string => $path
+            ? static fn(string $path): string => $path
             : \Closure::fromCallable($pathResolver);
     }
 
@@ -76,7 +76,7 @@ final class FromFilesSchemaProvider implements SchemaProviderInterface
                 }
                 return ($this->pathResolver)($file);
             },
-            $files
+            $files,
         );
 
         $new = clone $this;

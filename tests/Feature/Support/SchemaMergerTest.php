@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace Cycle\Schema\Provider\Tests\Feature\Support;
 
-use PHPUnit\Framework\TestCase;
 use Cycle\Schema\Provider\Exception\DuplicateRoleException;
 use Cycle\Schema\Provider\Support\SchemaMerger;
+use PHPUnit\Framework\TestCase;
 
 final class SchemaMergerTest extends TestCase
 {
-    private function createMerger(): SchemaMerger
-    {
-        return new SchemaMerger();
-    }
-
     public function testMergeNulls(): void
     {
         $result = $this->createMerger()->merge(null, null);
@@ -55,5 +50,10 @@ final class SchemaMergerTest extends TestCase
         $result = $this->createMerger()->merge([['foo'], ['bar']], [['bar'], ['baz']]);
 
         $this->assertSame([['foo'], ['bar'], ['bar'], ['baz']], $result);
+    }
+
+    private function createMerger(): SchemaMerger
+    {
+        return new SchemaMerger();
     }
 }

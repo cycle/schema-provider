@@ -22,6 +22,7 @@ final class PhpFileSchemaProvider implements SchemaProviderInterface
      * @var \Closure(non-empty-string): non-empty-string
      */
     private \Closure $pathResolver;
+
     private FilesInterface $files;
 
     /**
@@ -33,7 +34,7 @@ final class PhpFileSchemaProvider implements SchemaProviderInterface
         $this->files = $files ?? new Files();
         /** @psalm-suppress PropertyTypeCoercion */
         $this->pathResolver = $pathResolver === null
-            ? static fn (string $path): string => $path
+            ? static fn(string $path): string => $path
             : \Closure::fromCallable($pathResolver);
     }
 

@@ -22,7 +22,7 @@ final class SimpleCacheSchemaProviderTest extends BaseSchemaProvider
     {
         $this->assertSame(
             ['key' => 'foo'],
-            SimpleCacheSchemaProvider::config('foo')
+            SimpleCacheSchemaProvider::config('foo'),
         );
     }
 
@@ -78,18 +78,10 @@ final class SimpleCacheSchemaProviderTest extends BaseSchemaProvider
         $result = $provider->read($nextProvider);
         $this->assertSame(
             [[Action::GET, $key], [Action::SET, $key]],
-            $this->cacheService->getActionKeyList()
+            $this->cacheService->getActionKeyList(),
         );
         $this->assertSame(self::READ_CONFIG_SCHEMA, $result);
         $this->assertSame(self::READ_CONFIG_SCHEMA, $this->cacheService->get($key));
-    }
-
-    private function prepareCacheService(): void
-    {
-        $this->cacheService = new SimpleCacheActionLogger(
-            new MemorySimpleCache(),
-            [self::CACHE_KEY => self::READ_CONFIG_SCHEMA]
-        );
     }
 
     protected function setUp(): void
@@ -97,9 +89,17 @@ final class SimpleCacheSchemaProviderTest extends BaseSchemaProvider
         $this->prepareCacheService();
     }
 
-    protected function createSchemaProvider(array $config = null): SimpleCacheSchemaProvider
+    protected function createSchemaProvider(?array $config = null): SimpleCacheSchemaProvider
     {
         $provider = new SimpleCacheSchemaProvider($this->cacheService);
         return $config === null ? $provider : $provider->withConfig($config);
+    }
+
+    private function prepareCacheService(): void
+    {
+        $this->cacheService = new SimpleCacheActionLogger(
+            new MemorySimpleCache(),
+            [self::CACHE_KEY => self::READ_CONFIG_SCHEMA],
+        );
     }
 }

@@ -13,12 +13,6 @@ final class SchemaProviderPipelineTest extends BaseProviderCollector
         ArraySchemaProvider::class => self::READ_CONFIG_SCHEMA,
     ];
 
-    protected function createSchemaProvider(?array $config = []): SchemaProviderPipeline
-    {
-        $provider = new SchemaProviderPipeline($this->container);
-        return $config === null ? $provider : $provider->withConfig($config);
-    }
-
     // Reading test
 
     public function testShortCircuitInstantiation(): void
@@ -31,5 +25,11 @@ final class SchemaProviderPipelineTest extends BaseProviderCollector
         $provider = $this->createSchemaProvider(['goodProvider', 'badProvider', 'undefined provider']);
 
         $this->assertSame(self::READ_CONFIG_SCHEMA, $provider->read());
+    }
+
+    protected function createSchemaProvider(?array $config = []): SchemaProviderPipeline
+    {
+        $provider = new SchemaProviderPipeline($this->container);
+        return $config === null ? $provider : $provider->withConfig($config);
     }
 }

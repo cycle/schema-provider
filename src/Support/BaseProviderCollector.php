@@ -17,6 +17,7 @@ abstract class BaseProviderCollector implements SchemaProviderInterface
      * @var \SplFixedArray<DeferredSchemaProviderDecorator>|null
      */
     protected ?\SplFixedArray $providers = null;
+
     private ContainerInterface $container;
 
     public function __construct(ContainerInterface $container)
@@ -73,7 +74,7 @@ abstract class BaseProviderCollector implements SchemaProviderInterface
             $nextProvider = (new DeferredSchemaProviderDecorator(
                 $container,
                 $definition,
-                static::IS_SEQUENCE_PIPELINE ? $nextProvider : null
+                static::IS_SEQUENCE_PIPELINE ? $nextProvider : null,
             ))->withConfig($config);
             $stack[--$size] = $nextProvider;
         }
