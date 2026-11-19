@@ -35,20 +35,20 @@
         }
     ],
     "require": {
-        "php": ">=8.0",
+        "php": ">=8.2",
         "psr/simple-cache": "^2.0 || ^3.0",
-        "psr/container": "^1.0 || ^2.0",
-        "webmozart/glob": "^4.6",
-        "spiral/files": "^2.14 || ^3.11",
-        "cycle/orm": "^2.0",
-        "cycle/schema-renderer": "^1.2"
+        "psr/container": "^1.1.2 || ^2.0.2",
+        "webmozart/glob": "^4.7",
+        "spiral/files": "^3.14",
+        "cycle/orm": "^2.18",
+        "cycle/schema-renderer": "^1.4"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
-        "phpunit/phpunit": "^9.6",
+        "phpunit/phpunit": "^11.5",
         "friendsofphp/php-cs-fixer": "^3.48",
-        "vimeo/psalm": "^4.30.0 || ^5.21",
-        "yiisoft/test-support": "^3.0"
+        "vimeo/psalm": "^6.13",
+        "yiisoft/test-support": "^3.2"
     },
     "autoload": {
         "psr-4": {
