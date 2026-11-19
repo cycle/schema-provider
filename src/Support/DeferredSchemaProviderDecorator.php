@@ -23,7 +23,7 @@ final class DeferredSchemaProviderDecorator implements SchemaProviderInterface
     public function __construct(
         ContainerInterface $container,
         SchemaProviderInterface|string $provider,
-        ?self $nextProvider
+        ?self $nextProvider,
     ) {
         $this->provider = $provider;
         $this->container = $container;

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Cycle\Schema\Provider\Tests\Feature\Support;
 
 use Cycle\ORM\SchemaInterface as Schema;
-use Psr\Container\ContainerInterface;
-use Yiisoft\Test\Support\Container\SimpleContainer;
-use Cycle\Schema\Provider\Support\DeferredSchemaProviderDecorator;
 use Cycle\Schema\Provider\SchemaProviderInterface;
+use Cycle\Schema\Provider\Support\DeferredSchemaProviderDecorator;
 use Cycle\Schema\Provider\Tests\Feature\BaseSchemaProvider;
 use Cycle\Schema\Provider\Tests\Feature\Stub\ArraySchemaProvider;
 use Cycle\Schema\Provider\Tests\Feature\Stub\ConfigurableSchemaProvider;
 use Cycle\Schema\Provider\Tests\Feature\Stub\SameOriginProvider;
+use Psr\Container\ContainerInterface;
+use Yiisoft\Test\Support\Container\SimpleContainer;
 
 final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
 {
@@ -71,7 +71,7 @@ final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
 
         $deferred1 = $this->createSchemaProvider(
             [ConfigurableSchemaProvider::OPTION_WRITABLE => true],
-            ConfigurableSchemaProvider::class
+            ConfigurableSchemaProvider::class,
         );
         $deferred2 = $this->createSchemaProvider(null, null, $deferred1);
 
@@ -100,7 +100,7 @@ final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
     protected function createSchemaProvider(
         ?array $config = null,
         $provider = null,
-        ?DeferredSchemaProviderDecorator $nextProvider = null
+        ?DeferredSchemaProviderDecorator $nextProvider = null,
     ): DeferredSchemaProviderDecorator {
         if ($provider === null) {
             $provider = new ArraySchemaProvider(self::DEFAULT_SCHEMA);

@@ -17,9 +17,8 @@ final class SimpleCacheSchemaProvider implements SchemaProviderInterface
     private string $key = self::DEFAULT_KEY;
 
     public function __construct(
-        private CacheInterface $cache
-    ) {
-    }
+        private CacheInterface $cache,
+    ) {}
 
     /**
      * Create a configuration array for the {@see self::withConfig()} method.

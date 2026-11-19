@@ -10,7 +10,7 @@ final class ArraySchemaProvider implements SchemaProviderInterface
 {
     protected ?array $schema;
 
-    public function __construct(array $schema = null)
+    public function __construct(?array $schema = null)
     {
         $this->schema = $schema;
     }

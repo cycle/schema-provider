@@ -14,12 +14,13 @@ final class BadDeclarationExceptionTest extends TestCase
     private const DEFAULT_MESSAGE_PATTERN = '/Default parameter should be instance of stdClass or its declaration\\./';
     private const RECEIVED_PATTERN = '/%s was received instead\\./';
 
-    protected function prepareException(
-        mixed $argument,
-        string $parameter = self::DEFAULT_PARAMETER,
-        string $class = self::DEFAULT_CLASS
-    ): BadDeclarationException {
-        return new BadDeclarationException($parameter, $class, $argument);
+    public static function argumentValueProvider(): \Traversable
+    {
+        yield [null, 'Null'];
+        yield [42, 'Int'];
+        yield [new \DateTimeImmutable(), 'Instance of DateTimeImmutable'];
+        yield [STDIN, 'Resource \\(stream\\)'];
+        yield [[], 'Array'];
     }
 
     /**
@@ -42,12 +43,11 @@ final class BadDeclarationExceptionTest extends TestCase
         $this->assertMatchesRegularExpression(self::DEFAULT_MESSAGE_PATTERN, $exception->getMessage());
     }
 
-    public static function argumentValueProvider(): \Traversable
-    {
-        yield [null, 'Null'];
-        yield [42, 'Int'];
-        yield [new \DateTimeImmutable(), 'Instance of DateTimeImmutable'];
-        yield [STDIN, 'Resource \\(stream\\)'];
-        yield [[], 'Array'];
+    protected function prepareException(
+        mixed $argument,
+        string $parameter = self::DEFAULT_PARAMETER,
+        string $class = self::DEFAULT_CLASS,
+    ): BadDeclarationException {
+        return new BadDeclarationException($parameter, $class, $argument);
     }
 }

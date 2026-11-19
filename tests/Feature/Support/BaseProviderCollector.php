@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Cycle\Schema\Provider\Tests\Feature\Support;
 
 use Cycle\ORM\SchemaInterface as Schema;
-use Cycle\Schema\Provider\Exception\SchemaProviderException;
-use Psr\Container\ContainerInterface;
-use Yiisoft\Test\Support\Container\SimpleContainer;
 use Cycle\Schema\Provider\Exception\BadDeclarationException;
 use Cycle\Schema\Provider\Exception\CumulativeException;
+use Cycle\Schema\Provider\Exception\SchemaProviderException;
 use Cycle\Schema\Provider\Tests\Feature\BaseSchemaProvider;
 use Cycle\Schema\Provider\Tests\Feature\Stub\ArraySchemaProvider;
 use Cycle\Schema\Provider\Tests\Feature\Stub\ConfigurableSchemaProvider;
 use Cycle\Schema\Provider\Tests\Feature\Stub\SameOriginProvider;
+use Psr\Container\ContainerInterface;
+use Yiisoft\Test\Support\Container\SimpleContainer;
 
 abstract class BaseProviderCollector extends BaseSchemaProvider
 {
@@ -25,19 +25,6 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
     ];
 
     protected ContainerInterface $container;
-
-    protected function setUp(): void
-    {
-        $this->prepareContainer();
-    }
-
-    protected function prepareContainer(array $definitions = []): ContainerInterface
-    {
-        return $this->container = new SimpleContainer(array_merge([
-            ArraySchemaProvider::class => new ArraySchemaProvider(),
-            'BadSchemaProvider' => new \stdClass(),
-        ], $definitions));
-    }
 
     // Definition resolving test
 
@@ -257,5 +244,18 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
         $schema2 = $provider->read(new ArraySchemaProvider(self::READ_CONFIG_SCHEMA));
 
         $this->assertSame(self::READ_CONFIG_SCHEMA, $schema2);
+    }
+
+    protected function setUp(): void
+    {
+        $this->prepareContainer();
+    }
+
+    protected function prepareContainer(array $definitions = []): ContainerInterface
+    {
+        return $this->container = new SimpleContainer(array_merge([
+            ArraySchemaProvider::class => new ArraySchemaProvider(),
+            'BadSchemaProvider' => new \stdClass(),
+        ], $definitions));
     }
 }

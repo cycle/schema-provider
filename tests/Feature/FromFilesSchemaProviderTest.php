@@ -15,16 +15,32 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
     protected const READ_CONFIG = ['files' => [__DIR__ . '/Stub/FromFilesSchemaProvider/schema1.php']];
     protected const READ_CONFIG_SCHEMA = ['user' => []];
 
+    public static function emptyConfigProvider(): \Traversable
+    {
+        yield [[]];
+        yield [['files' => []]];
+    }
+
+    public static function fileListBadValuesProvider(): \Traversable
+    {
+        yield [null];
+        yield [42];
+        yield [STDIN];
+        yield [[]];
+        yield [['']];
+        yield [new \SplFileInfo(__FILE__)];
+    }
+
     public function testConfig(): void
     {
         $this->assertSame(
             ['files' => ['foo', 'bar'], 'strict' => false],
-            FromFilesSchemaProvider::config(['foo', 'bar'])
+            FromFilesSchemaProvider::config(['foo', 'bar']),
         );
 
         $this->assertSame(
             ['files' => ['foo', 'bar'], 'strict' => true],
-            FromFilesSchemaProvider::config(['foo', 'bar'], true)
+            FromFilesSchemaProvider::config(['foo', 'bar'], true),
         );
     }
 
@@ -51,6 +67,7 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
 
     /**
      * @dataProvider fileListBadValuesProvider
+     * @param mixed $value
      */
     public function testWithConfigInvalidValueInFileList($value): void
     {
@@ -194,23 +211,7 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
         $this->assertFalse($schemaProvider->clear());
     }
 
-    public static function emptyConfigProvider(): \Traversable
-    {
-        yield [[]];
-        yield [['files' => []]];
-    }
-
-    public static function fileListBadValuesProvider(): \Traversable
-    {
-        yield [null];
-        yield [42];
-        yield [STDIN];
-        yield [[]];
-        yield [['']];
-        yield [new \SplFileInfo(__FILE__)];
-    }
-
-    protected function createSchemaProvider(array $config = null): FromFilesSchemaProvider
+    protected function createSchemaProvider(?array $config = null): FromFilesSchemaProvider
     {
         $provider = new FromFilesSchemaProvider();
         return $config === null ? $provider : $provider->withConfig($config);

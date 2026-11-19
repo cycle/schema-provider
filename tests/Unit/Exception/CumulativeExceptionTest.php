@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace Cycle\Schema\Provider\Tests\Unit\Exception;
 
-use PHPUnit\Framework\TestCase;
 use Cycle\Schema\Provider\Exception\CumulativeException;
+use PHPUnit\Framework\TestCase;
 
 final class CumulativeExceptionTest extends TestCase
 {
-    private function prepareException(\Throwable ...$exceptions): CumulativeException
-    {
-        return new CumulativeException(...$exceptions);
-    }
-
     public function testDefaultState(): void
     {
         $exception = $this->prepareException();
@@ -62,15 +57,20 @@ final class CumulativeExceptionTest extends TestCase
 
         $this->assertMatchesRegularExpression(
             '/\\n1\\) [^\\n]++\\n\\[RuntimeException\\] \\#42\\: Foo message\\./',
-            $exception->getMessage()
+            $exception->getMessage(),
         );
         $this->assertMatchesRegularExpression(
             '/\\n2\\) [^\\n]++\\n\\[Exception] #0: Bar message./',
-            $exception->getMessage()
+            $exception->getMessage(),
         );
         $this->assertMatchesRegularExpression(
             '/\\n3\\) [^\\n]++\\n\\[InvalidArgumentException] #0: Baz message./',
-            $exception->getMessage()
+            $exception->getMessage(),
         );
+    }
+
+    private function prepareException(\Throwable ...$exceptions): CumulativeException
+    {
+        return new CumulativeException(...$exceptions);
     }
 }

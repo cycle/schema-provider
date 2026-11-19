@@ -31,12 +31,6 @@ final class MergeSchemaProviderTest extends BaseProviderCollector
         ],
     ];
 
-    protected function createSchemaProvider(?array $config = []): MergeSchemaProvider
-    {
-        $provider = new MergeSchemaProvider($this->container);
-        return $config === null ? $provider : $provider->withConfig($config);
-    }
-
     public function testMergeSameValueConflict(): void
     {
         $provider = $this->createSchemaProvider([...self::READ_CONFIG, new ArraySchemaProvider(self::SCHEMA_PART_1)]);
@@ -50,5 +44,11 @@ final class MergeSchemaProviderTest extends BaseProviderCollector
 
         $provider = $this->createSchemaProvider([...self::READ_CONFIG, new ArraySchemaProvider(self::SCHEMA_CONFLICT)]);
         $provider->read();
+    }
+
+    protected function createSchemaProvider(?array $config = []): MergeSchemaProvider
+    {
+        $provider = new MergeSchemaProvider($this->container);
+        return $config === null ? $provider : $provider->withConfig($config);
     }
 }

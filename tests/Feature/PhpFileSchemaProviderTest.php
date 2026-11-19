@@ -17,26 +17,16 @@ final class PhpFileSchemaProviderTest extends BaseSchemaProvider
     private const WRITE_ONLY_CONFIG = ['file' => self::TMP_FILE, 'mode' => PhpFileSchemaProvider::MODE_WRITE_ONLY];
     private const TMP_FILE = __DIR__ . '/Stub/PhpFileSchemaProvider/write.php';
 
-    protected function setUp(): void
-    {
-        $this->removeTmpFile();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->removeTmpFile();
-    }
-
     public function testConfig(): void
     {
         $this->assertSame(
             ['file' => 'foo', 'mode' => PhpFileSchemaProvider::MODE_READ_AND_WRITE],
-            PhpFileSchemaProvider::config('foo')
+            PhpFileSchemaProvider::config('foo'),
         );
 
         $this->assertSame(
             ['file' => 'foo', 'mode' => PhpFileSchemaProvider::MODE_WRITE_ONLY],
-            PhpFileSchemaProvider::config('foo', PhpFileSchemaProvider::MODE_WRITE_ONLY)
+            PhpFileSchemaProvider::config('foo', PhpFileSchemaProvider::MODE_WRITE_ONLY),
         );
     }
 
@@ -155,6 +145,22 @@ final class PhpFileSchemaProviderTest extends BaseSchemaProvider
         $this->assertFileDoesNotExist(self::TMP_FILE);
     }
 
+    protected function setUp(): void
+    {
+        $this->removeTmpFile();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->removeTmpFile();
+    }
+
+    protected function createSchemaProvider(?array $config = null): PhpFileSchemaProvider
+    {
+        $provider = new PhpFileSchemaProvider();
+        return $config === null ? $provider : $provider->withConfig($config);
+    }
+
     private function prepareTmpFile(): void
     {
         \file_put_contents(self::TMP_FILE, '<?php return null;');
@@ -165,11 +171,5 @@ final class PhpFileSchemaProviderTest extends BaseSchemaProvider
         if (\is_file(self::TMP_FILE)) {
             \unlink(self::TMP_FILE);
         }
-    }
-
-    protected function createSchemaProvider(array $config = null): PhpFileSchemaProvider
-    {
-        $provider = new PhpFileSchemaProvider();
-        return $config === null ? $provider : $provider->withConfig($config);
     }
 }
