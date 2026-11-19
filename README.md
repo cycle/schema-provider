@@ -1,14 +1,27 @@
-# Cycle ORM - Schema Provider
+<div align="center">
+    <a href="https://cycle-orm.dev" target="_blank">
+        <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="https://github.com/cycle/.github/blob/main/logo/words-vector-dark.svg?raw=true">
+            <img width="50%" align="center" src="https://github.com/cycle/.github/blob/main/logo/words-vector-light.svg?raw=true" alt="CycleORM Logo">
+        </picture>
+    </a>
+</div>
 
-[![PHP Version Require](https://poser.pugx.org/cycle/schema-provider/require/php)](https://packagist.org/packages/cycle/schema-provider)
-[![Latest Stable Version](https://poser.pugx.org/cycle/schema-provider/v/stable)](https://packagist.org/packages/cycle/schema-provider)
-[![phpunit](https://github.com/cycle/schema-provider/actions/workflows/phpunit.yml/badge.svg)](https://github.com/cycle/schema-provider/actions)
-[![psalm](https://github.com/cycle/schema-provider/actions/workflows/psalm.yml/badge.svg)](https://github.com/cycle/schema-provider/actions)
-[![Total Downloads](https://poser.pugx.org/cycle/schema-provider/downloads)](https://packagist.org/packages/cycle/schema-provider)
-[![psalm-level](https://shepherd.dev/github/cycle/schema-provider/level.svg)](https://shepherd.dev/github/cycle/schema-provider)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/cycle/schema-provider/badges/quality-score.png?b=1.x)](https://scrutinizer-ci.com/g/cycle/schema-provider/?branch=1.x)
-[![Codecov](https://codecov.io/gh/cycle/schema-provider/graph/badge.svg)](https://codecov.io/gh/cycle/schema-provider)
-<a href="https://discord.gg/TFeEmCs"><img src="https://img.shields.io/badge/discord-chat-magenta.svg"></a>
+<p align="center">Build a Cycle ORM schema from a chain of providers: files, cache, merged sources</p>
+
+<div align="center">
+
+[![Documentation](https://img.shields.io/badge/Documentation-blue?style=for-the-badge&logo=gitbook&logoColor=white)](https://cycle-orm.dev/docs)
+[![Sponsor](https://img.shields.io/static/v1?style=for-the-badge&label=&message=Sponsor&logo=githubsponsors&logoColor=white&color=%23EA4AAA)](https://github.com/sponsors/cycle)
+
+[![Psalm Level](https://shepherd.dev/github/cycle/schema-provider/level.svg)](https://shepherd.dev/github/cycle/schema-provider)
+[![Type Coverage](https://shepherd.dev/github/cycle/schema-provider/coverage.svg)](https://shepherd.dev/github/cycle/schema-provider)
+[![Codecov](https://img.shields.io/codecov/c/github/cycle/schema-provider/1.x?style=flat-square&logo=codecov)](https://codecov.io/gh/cycle/schema-provider)
+[![Discord](https://img.shields.io/discord/538114875570913290?style=flat-square&logo=discord&labelColor=7289d9&logoColor=white&color=39456d)](https://discord.gg/spiralphp)
+
+</div>
+
+<br />
 
 [Cycle ORM](https://github.com/cycle/orm) uses an object implementing the `Cycle\ORM\SchemaInterface` interface as a schema.
 This schema can be constructed from a PHP array with a specific structure. The package at hand offers a comprehensive
@@ -19,21 +32,22 @@ solution for building a schema from different sources. It includes a collection 
 This pipeline orchestrates the execution of providers in a predetermined order, one after another.
 If one of the providers returns the schema, subsequent providers are not executed.
 
-## Requirements
+## Get Started
 
-Make sure that your server is configured with the following PHP versions and extensions:
+### Installation
 
-- PHP >=8.0
-
-## Installation
-
-You can install the package via Composer:
+The package requires PHP 8.2+.
 
 ```bash
 composer require cycle/schema-provider
 ```
 
-## Usage
+[![PHP](https://img.shields.io/packagist/php-v/cycle/schema-provider.svg?style=flat-square&logo=php)](https://packagist.org/packages/cycle/schema-provider)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/cycle/schema-provider.svg?style=flat-square&logo=packagist)](https://packagist.org/packages/cycle/schema-provider)
+[![License](https://img.shields.io/packagist/l/cycle/schema-provider.svg?style=flat-square)](LICENSE)
+[![Total Downloads](https://img.shields.io/packagist/dt/cycle/schema-provider.svg?style=flat-square)](https://packagist.org/packages/cycle/schema-provider/stats)
+
+### Usage
 
 Let's explore a straightforward example of schema creation using this package. For example, we have a schema in
 two php files **schema1.php** and **schema2.php**. In this scenario, we can use the
@@ -88,8 +102,3 @@ $pipeline = (new SchemaProviderPipeline($container))->withConfig([
 
 $schema = new Schema($pipeline->read());
 ```
-
-## License
-
-The MIT License (MIT). Please see [`LICENSE`](./LICENSE) for more information.
-Maintained by [Spiral Scout](https://spiralscout.com).
