@@ -44,7 +44,6 @@
         "cycle/schema-renderer": "^1.4"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-latest",
         "bamarni/composer-bin-plugin": "^1.8",
         "phpunit/phpunit": "^11.5",
         "yiisoft/test-support": "^3.2"
