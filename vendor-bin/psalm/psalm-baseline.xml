@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="7.11.0">
+  <file src="src/FromFilesSchemaProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function clear(): bool]]></code>
+      <code><![CDATA[public function read(?SchemaProviderInterface $nextProvider = null): ?array]]></code>
+      <code><![CDATA[public function withConfig(array $config): self]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/MergeSchemaProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function read(?SchemaProviderInterface $nextProvider = null): ?array]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/PhpFileSchemaProvider.php">
+    <ArgumentTypeCoercion>
+      <code><![CDATA[$this->file]]></code>
+      <code><![CDATA[$this->file]]></code>
+    </ArgumentTypeCoercion>
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function clear(): bool]]></code>
+      <code><![CDATA[public function read(?SchemaProviderInterface $nextProvider = null): ?array]]></code>
+      <code><![CDATA[public function withConfig(array $config): self]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/SimpleCacheSchemaProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function clear(): bool]]></code>
+      <code><![CDATA[public function read(?SchemaProviderInterface $nextProvider = null): ?array]]></code>
+      <code><![CDATA[public function withConfig(array $config): self]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Support/BaseProviderCollector.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function clear(): bool]]></code>
+      <code><![CDATA[public function withConfig(array $config): self]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Support/DeferredSchemaProviderDecorator.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function clear(): bool]]></code>
+      <code><![CDATA[public function read(?SchemaProviderInterface $nextProvider = null): ?array]]></code>
+      <code><![CDATA[public function withConfig(array $config): self]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Support/SchemaProviderPipeline.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function read(?SchemaProviderInterface $nextProvider = null): ?array]]></code>
+    </MissingOverrideAttribute>
+  </file>
+</files>

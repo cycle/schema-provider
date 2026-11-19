@@ -1,7 +1,10 @@
 .idea/
 .env
-composer.lock
-vendor/
+/composer.lock
+/vendor/
+/runtime/
+/vendor-bin/*/vendor/
+/vendor-bin/*/composer.lock
 *.db
 clover.xml
 docker-compose.override.yml
