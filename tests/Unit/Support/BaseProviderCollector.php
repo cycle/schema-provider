@@ -99,7 +99,8 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
     {
         $provider = $this->createSchemaProvider(null);
 
-        Expect::exception(SchemaProviderException::class);
+        Expect::exception(SchemaProviderException::class)
+            ->withMessageMatchingRegex('/^Cycle\\\\Schema\\\\Provider\\\\[\\w\\\\]+ is not configured\\.$/');
 
         $provider->clear();
     }
@@ -193,7 +194,7 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
     {
         $provider = $this->createSchemaProvider(null);
 
-        Expect::exception(SchemaProviderException::class);
+        Expect::exception(SchemaProviderException::class)->withMessage($provider::class . ' is not configured.');
 
         $provider->read();
     }

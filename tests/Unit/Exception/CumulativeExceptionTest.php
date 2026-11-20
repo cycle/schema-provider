@@ -42,7 +42,7 @@ final class CumulativeExceptionTest
         $exception = $this->prepareException(...$list);
 
         Assert::int(strpos($exception->getMessage(), '[RuntimeException] #42: Foo message.'));
-        Assert::string($exception->getMessage())->matchesRegex('/One exception was thrown\\./');
+        Assert::string($exception->getMessage())->startsWith("One exception was thrown.\n\n1) ");
     }
 
     public function testGetMessageWithMultipleExceptions(): void
