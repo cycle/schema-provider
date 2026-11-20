@@ -52,12 +52,6 @@
         "testo/testo": "^0.10.60",
         "yiisoft/test-support": "^3.2"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/cycle/testing"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "Cycle\\Schema\\Provider\\": "src/"
