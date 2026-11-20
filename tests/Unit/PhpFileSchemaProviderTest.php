@@ -8,8 +8,11 @@ use Cycle\Schema\Provider\Exception\ConfigurationException;
 use Cycle\Schema\Provider\Exception\SchemaProviderException;
 use Cycle\Schema\Provider\PhpFileSchemaProvider;
 use Cycle\Schema\Provider\Tests\Fixtures\ArraySchemaProvider;
+use Cycle\Schema\Provider\Tests\Fixtures\RecordingFiles;
+use Spiral\Files\Files;
 use Testo\Assert;
 use Testo\Assert\ExpectException;
+use Testo\Core\Exception\SkipTest;
 use Testo\Expect;
 use Testo\Lifecycle\AfterTest;
 use Testo\Lifecycle\BeforeTest;
@@ -23,6 +26,8 @@ final class PhpFileSchemaProviderTest extends BaseSchemaProvider
     private const WRITE_CONFIG = ['file' => self::TMP_FILE];
     private const WRITE_ONLY_CONFIG = ['file' => self::TMP_FILE, 'mode' => PhpFileSchemaProvider::MODE_WRITE_ONLY];
     private const TMP_FILE = __DIR__ . '/../Fixtures/PhpFileSchemaProvider/write.php';
+
+    private string $tmpDir;
 
     public function testConfig(): void
     {
@@ -86,7 +91,8 @@ final class PhpFileSchemaProviderTest extends BaseSchemaProvider
         $config['mode'] = PhpFileSchemaProvider::MODE_WRITE_ONLY;
         $provider = $this->createSchemaProvider($config);
 
-        Expect::exception(SchemaProviderException::class);
+        Expect::exception(SchemaProviderException::class)
+            ->withMessage(PhpFileSchemaProvider::class . ' can not read schema.');
 
         $provider->read();
     }
@@ -124,11 +130,47 @@ final class PhpFileSchemaProviderTest extends BaseSchemaProvider
 
     public function testClearNotAFile(): void
     {
-        $provider = $this->createSchemaProvider(['file' => __DIR__]);
+        $files = new RecordingFiles();
+        $provider = (new PhpFileSchemaProvider(files: $files))->withConfig(['file' => __DIR__]);
 
         $result = $provider->clear();
 
         Assert::false($result);
+        Assert::array($files->calls)->notContains('delete');
+        Assert::true(\is_dir(__DIR__));
+    }
+
+    public function testWritesThroughGivenFilesystem(): void
+    {
+        $files = new RecordingFiles();
+        $provider = (new PhpFileSchemaProvider(files: $files))->withConfig(self::WRITE_CONFIG);
+
+        $provider->read(new ArraySchemaProvider(self::READ_CONFIG_SCHEMA));
+
+        Assert::array($files->calls)->contains('write');
+    }
+
+    public function testWritesIntoMissingDirectory(): void
+    {
+        $file = $this->tmpDir . '/nested/schema.php';
+        $provider = $this->createSchemaProvider(['file' => $file]);
+
+        $provider->read(new ArraySchemaProvider(self::READ_CONFIG_SCHEMA));
+
+        Assert::same($this->createSchemaProvider(['file' => $file])->read(), self::READ_CONFIG_SCHEMA);
+    }
+
+    public function testWrittenFileIsWritableByEveryone(): void
+    {
+        if (\PHP_OS_FAMILY === 'Windows') {
+            throw new SkipTest('Windows has no POSIX file modes.');
+        }
+        $provider = $this->createSchemaProvider(self::WRITE_CONFIG);
+
+        $provider->read(new ArraySchemaProvider(self::READ_CONFIG_SCHEMA));
+
+        \clearstatcache();
+        Assert::same(\fileperms(self::TMP_FILE) & 07777, 0777);
     }
 
     public function testPrepareTmpFile(): void
@@ -148,12 +190,16 @@ final class PhpFileSchemaProviderTest extends BaseSchemaProvider
     protected function setUp(): void
     {
         $this->removeTmpFile();
+        $this->tmpDir = \sys_get_temp_dir() . '/cycle-schema-provider-' . \bin2hex(\random_bytes(4));
     }
 
     #[AfterTest]
     protected function tearDown(): void
     {
         $this->removeTmpFile();
+        if (\is_dir($this->tmpDir)) {
+            (new Files())->deleteDirectory($this->tmpDir);
+        }
     }
 
     protected function createSchemaProvider(?array $config = null): PhpFileSchemaProvider
