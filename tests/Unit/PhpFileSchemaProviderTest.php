@@ -140,6 +140,27 @@ final class PhpFileSchemaProviderTest extends BaseSchemaProvider
         Assert::true(\is_dir(__DIR__));
     }
 
+    public function testClearReadOnlyFile(): void
+    {
+        $file = $this->tmpDir . '/schema.php';
+        (new Files())->write($file, '<?php return null;', ensureDirectory: true);
+        \chmod($file, 0444);
+        \clearstatcache();
+        if (\is_writable($file)) {
+            throw new SkipTest('The current user can write read-only files.');
+        }
+        $files = new RecordingFiles();
+        $provider = (new PhpFileSchemaProvider(files: $files))->withConfig(['file' => $file]);
+
+        $result = $provider->clear();
+        // Windows refuses to delete a read-only file, so tearDown() could not remove the directory.
+        \chmod($file, 0666);
+
+        Assert::false($result);
+        Assert::array($files->calls)->notContains('delete');
+        Assert::true(\is_file($file));
+    }
+
     public function testWritesThroughGivenFilesystem(): void
     {
         $files = new RecordingFiles();
