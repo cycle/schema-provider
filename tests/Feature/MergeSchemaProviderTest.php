@@ -31,16 +31,18 @@ final class MergeSchemaProviderTest extends BaseProviderCollector
         ],
     ];
 
+    #[\Testo\Test]
     public function testMergeSameValueConflict(): void
     {
         $provider = $this->createSchemaProvider([...self::READ_CONFIG, new ArraySchemaProvider(self::SCHEMA_PART_1)]);
         $schema = $provider->read();
-        self::assertSame(self::READ_CONFIG_SCHEMA, $schema);
+        \Testo\Assert::same($schema, self::READ_CONFIG_SCHEMA);
     }
 
+    #[\Testo\Test]
     public function testMergeDifferentValueConflict(): void
     {
-        $this->expectException(DuplicateRoleException::class);
+        \Testo\Expect::exception(DuplicateRoleException::class);
 
         $provider = $this->createSchemaProvider([...self::READ_CONFIG, new ArraySchemaProvider(self::SCHEMA_CONFLICT)]);
         $provider->read();

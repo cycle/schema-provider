@@ -7,17 +7,19 @@ namespace Cycle\Schema\Provider\Tests\Unit\Exception;
 use Cycle\Schema\Provider\Exception\CumulativeException;
 use PHPUnit\Framework\TestCase;
 
-final class CumulativeExceptionTest extends TestCase
+final class CumulativeExceptionTest
 {
+    #[\Testo\Test]
     public function testDefaultState(): void
     {
         $exception = $this->prepareException();
 
-        $this->assertInstanceOf(\Throwable::class, $exception);
-        $this->assertSame('0 exceptions were thrown.', $exception->getMessage());
-        $this->assertSame(0, $exception->getCode());
+        \Testo\Assert::instanceOf($exception, \Throwable::class);
+        \Testo\Assert::same($exception->getMessage(), '0 exceptions were thrown.');
+        \Testo\Assert::same($exception->getCode(), 0);
     }
 
+    #[\Testo\Test]
     public function testGetExceptions(): void
     {
         $list = [
@@ -28,9 +30,10 @@ final class CumulativeExceptionTest extends TestCase
 
         $exception = $this->prepareException(...$list);
 
-        $this->assertSame($list, $exception->getExceptions());
+        \Testo\Assert::same($exception->getExceptions(), $list);
     }
 
+    #[\Testo\Test]
     public function testGetMessageWithOneException(): void
     {
         $list = [
@@ -39,10 +42,11 @@ final class CumulativeExceptionTest extends TestCase
 
         $exception = $this->prepareException(...$list);
 
-        $this->assertIsInt(strpos($exception->getMessage(), '[RuntimeException] #42: Foo message.'));
-        $this->assertMatchesRegularExpression('/One exception was thrown\\./', $exception->getMessage());
+        \Testo\Assert::int(strpos($exception->getMessage(), '[RuntimeException] #42: Foo message.'));
+        \Testo\Assert::string($exception->getMessage())->matchesRegex('/One exception was thrown\\./');
     }
 
+    #[\Testo\Test]
     public function testGetMessageWithMultipleExceptions(): void
     {
         $list = [
@@ -53,20 +57,11 @@ final class CumulativeExceptionTest extends TestCase
 
         $exception = $this->prepareException(...$list);
 
-        $this->assertMatchesRegularExpression('/3 exceptions were thrown\\./', $exception->getMessage());
+        \Testo\Assert::string($exception->getMessage())->matchesRegex('/3 exceptions were thrown\\./');
 
-        $this->assertMatchesRegularExpression(
-            '/\\n1\\) [^\\n]++\\n\\[RuntimeException\\] \\#42\\: Foo message\\./',
-            $exception->getMessage(),
-        );
-        $this->assertMatchesRegularExpression(
-            '/\\n2\\) [^\\n]++\\n\\[Exception] #0: Bar message./',
-            $exception->getMessage(),
-        );
-        $this->assertMatchesRegularExpression(
-            '/\\n3\\) [^\\n]++\\n\\[InvalidArgumentException] #0: Baz message./',
-            $exception->getMessage(),
-        );
+        \Testo\Assert::string($exception->getMessage())->matchesRegex('/\\n1\\) [^\\n]++\\n\\[RuntimeException\\] \\#42\\: Foo message\\./');
+        \Testo\Assert::string($exception->getMessage())->matchesRegex('/\\n2\\) [^\\n]++\\n\\[Exception] #0: Bar message./');
+        \Testo\Assert::string($exception->getMessage())->matchesRegex('/\\n3\\) [^\\n]++\\n\\[InvalidArgumentException] #0: Baz message./');
     }
 
     private function prepareException(\Throwable ...$exceptions): CumulativeException

@@ -31,65 +31,59 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
         yield [new \SplFileInfo(__FILE__)];
     }
 
+    #[\Testo\Test]
     public function testConfig(): void
     {
-        $this->assertSame(
-            ['files' => ['foo', 'bar'], 'strict' => false],
-            FromFilesSchemaProvider::config(['foo', 'bar']),
-        );
+        \Testo\Assert::same(FromFilesSchemaProvider::config(['foo', 'bar']), ['files' => ['foo', 'bar'], 'strict' => false]);
 
-        $this->assertSame(
-            ['files' => ['foo', 'bar'], 'strict' => true],
-            FromFilesSchemaProvider::config(['foo', 'bar'], true),
-        );
+        \Testo\Assert::same(FromFilesSchemaProvider::config(['foo', 'bar'], true), ['files' => ['foo', 'bar'], 'strict' => true]);
     }
 
-    /**
-     * @dataProvider emptyConfigProvider
-     */
+    #[\Testo\Test]
+    #[\Testo\Data\DataProvider('emptyConfigProvider')]
     public function testWithConfigEmpty(array $config): void
     {
         $schemaProvider = $this->createSchemaProvider();
 
-        $this->expectException(ConfigurationException::class);
-        $this->expectExceptionMessage('Schema file list is not set.');
+        \Testo\Expect::exception(ConfigurationException::class)->withMessageContaining('Schema file list is not set.');
         $schemaProvider->withConfig($config);
     }
 
+    #[\Testo\Test]
     public function testWithConfigInvalidFiles(): void
     {
         $schemaProvider = $this->createSchemaProvider();
 
-        $this->expectException(ConfigurationException::class);
-        $this->expectExceptionMessage('The `files` parameter must be an array.');
+        \Testo\Expect::exception(ConfigurationException::class)->withMessageContaining('The `files` parameter must be an array.');
         $schemaProvider->withConfig(['files' => __DIR__ . '/Stub/FromFilesSchemaProvider/schema1.php']);
     }
 
     /**
-     * @dataProvider fileListBadValuesProvider
      * @param mixed $value
      */
+    #[\Testo\Test]
+    #[\Testo\Data\DataProvider('fileListBadValuesProvider')]
     public function testWithConfigInvalidValueInFileList($value): void
     {
         $schemaProvider = $this->createSchemaProvider();
 
-        $this->expectException(ConfigurationException::class);
-        $this->expectExceptionMessage('The `files` parameter must contain non-empty string values.');
+        \Testo\Expect::exception(ConfigurationException::class)->withMessageContaining('The `files` parameter must contain non-empty string values.');
         $schemaProvider->withConfig(['files' => [$value]]);
     }
 
+    #[\Testo\Test]
     public function testWithConfigInvalidStrict(): void
     {
         $schemaProvider = $this->createSchemaProvider();
 
-        $this->expectException(ConfigurationException::class);
-        $this->expectExceptionMessage('The `strict` parameter must be a boolean.');
+        \Testo\Expect::exception(ConfigurationException::class)->withMessageContaining('The `strict` parameter must be a boolean.');
         $schemaProvider->withConfig([
             'files' => [__DIR__ . '/Stub/FromFilesSchemaProvider/schema1.php'],
             'strict' => 1,
         ]);
     }
 
+    #[\Testo\Test]
     public function testWithConfig(): void
     {
         $schemaProvider = $this->createSchemaProvider();
@@ -98,9 +92,10 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
             ->withConfig(['files' => [__DIR__ . '/Stub/FromFilesSchemaProvider/schema1.php']])
             ->read();
 
-        $this->assertSame(['user' => []], $data);
+        \Testo\Assert::same($data, ['user' => []]);
     }
 
+    #[\Testo\Test]
     public function testWithConfigFilesNotExists(): void
     {
         $schemaProvider = $this->createSchemaProvider();
@@ -109,9 +104,10 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
             ->withConfig(['files' => [__DIR__ . '/Stub/FromFilesSchemaProvider/schema-not-exists.php']])
             ->read();
 
-        $this->assertNull($data);
+        \Testo\Assert::null($data);
     }
 
+    #[\Testo\Test]
     public function testWithConfigFilesEmpty(): void
     {
         $schemaProvider = $this->createSchemaProvider();
@@ -120,9 +116,10 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
             ->withConfig(['files' => [__DIR__ . '/Stub/FromFilesSchemaProvider/schema-empty.php']])
             ->read();
 
-        $this->assertSame([], $data);
+        \Testo\Assert::same($data, []);
     }
 
+    #[\Testo\Test]
     public function testWithConfigStrictFilesNotExists(): void
     {
         $schemaProvider = $this
@@ -135,10 +132,11 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
                 'strict' => true,
             ]);
 
-        $this->expectException(SchemaFileNotFoundException::class);
+        \Testo\Expect::exception(SchemaFileNotFoundException::class);
         $schemaProvider->read();
     }
 
+    #[\Testo\Test]
     public function testRead(): void
     {
         $schemaProvider = $this->createSchemaProvider();
@@ -153,25 +151,26 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
             ])
             ->read();
 
-        $this->assertSame([
+        \Testo\Assert::same($data, [
             'user' => [],
             'post' => [Schema::DATABASE => 'postgres'],
             'comment' => [],
-        ], $data);
+        ]);
     }
 
+    #[\Testo\Test]
     public function testReadEmpty(): void
     {
         $schemaProvider = $this->createSchemaProvider();
-        $this->assertNull($schemaProvider->read());
+        \Testo\Assert::null($schemaProvider->read());
     }
 
+    #[\Testo\Test]
     public function testReadDuplicateRoles(): void
     {
         $schemaProvider = $this->createSchemaProvider();
 
-        $this->expectException(DuplicateRoleException::class);
-        $this->expectExceptionMessage('The `post` role already exists in the DB schema.');
+        \Testo\Expect::exception(DuplicateRoleException::class)->withMessageContaining('The `post` role already exists in the DB schema.');
         $schemaProvider
             ->withConfig([
                 'files' => [
@@ -182,6 +181,7 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
             ->read();
     }
 
+    #[\Testo\Test]
     public function testReadWildcard(): void
     {
         $schemaProvider = $this->createSchemaProvider();
@@ -197,18 +197,14 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
             ])
             ->read();
 
-        $this->assertArrayHasKey('user', $data);
-        $this->assertArrayHasKey('post', $data);
-        $this->assertArrayHasKey('level3-schema', $data);
-        $this->assertArrayHasKey('level3-1-schema', $data);
-        $this->assertArrayHasKey('level3-2-schema', $data);
-        $this->assertArrayNotHasKey('level2-schema', $data);
+        \Testo\Assert::array($data)->hasKeys('user')->hasKeys('post')->hasKeys('level3-schema')->hasKeys('level3-1-schema')->hasKeys('level3-2-schema')->doesNotHaveKeys('level2-schema');
     }
 
+    #[\Testo\Test]
     public function testClear(): void
     {
         $schemaProvider = $this->createSchemaProvider();
-        $this->assertFalse($schemaProvider->clear());
+        \Testo\Assert::false($schemaProvider->clear());
     }
 
     protected function createSchemaProvider(?array $config = null): FromFilesSchemaProvider

@@ -15,6 +15,7 @@ final class SchemaProviderPipelineTest extends BaseProviderCollector
 
     // Reading test
 
+    #[\Testo\Test]
     public function testShortCircuitInstantiation(): void
     {
         $this->prepareContainer([
@@ -24,7 +25,7 @@ final class SchemaProviderPipelineTest extends BaseProviderCollector
 
         $provider = $this->createSchemaProvider(['goodProvider', 'badProvider', 'undefined provider']);
 
-        $this->assertSame(self::READ_CONFIG_SCHEMA, $provider->read());
+        \Testo\Assert::same($provider->read(), self::READ_CONFIG_SCHEMA);
     }
 
     protected function createSchemaProvider(?array $config = []): SchemaProviderPipeline

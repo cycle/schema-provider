@@ -9,7 +9,7 @@ use Cycle\Schema\Provider\SchemaProviderInterface;
 use Cycle\Schema\Provider\Tests\Feature\Stub\ArraySchemaProvider;
 use PHPUnit\Framework\TestCase;
 
-abstract class BaseSchemaProvider extends TestCase
+abstract class BaseSchemaProvider
 {
     protected const READ_CONFIG = [];
     protected const READ_CONFIG_SCHEMA = [
@@ -33,16 +33,18 @@ abstract class BaseSchemaProvider extends TestCase
     ];
     protected const DEFAULT_SCHEMA = null;
 
+    #[\Testo\Test]
     public function testWithConfigImmutability(): void
     {
         $schemaProvider1 = $this->createSchemaProvider();
         $schemaProvider2 = $schemaProvider1->withConfig(static::READ_CONFIG);
 
-        $this->assertSame(static::DEFAULT_SCHEMA, $schemaProvider1->read());
-        $this->assertSame(static::READ_CONFIG_SCHEMA, $schemaProvider2->read());
-        $this->assertNotSame($schemaProvider1, $schemaProvider2);
+        \Testo\Assert::same($schemaProvider1->read(), static::DEFAULT_SCHEMA);
+        \Testo\Assert::same($schemaProvider2->read(), static::READ_CONFIG_SCHEMA);
+        \Testo\Assert::notSame($schemaProvider2, $schemaProvider1);
     }
 
+    #[\Testo\Test]
     public function testReadFromNextProvider(): void
     {
         $provider1 = $this->createSchemaProvider();
@@ -50,7 +52,7 @@ abstract class BaseSchemaProvider extends TestCase
 
         $result = $provider1->read($provider2);
 
-        $this->assertSame(static::READ_CONFIG_SCHEMA, $result);
+        \Testo\Assert::same($result, static::READ_CONFIG_SCHEMA);
     }
 
     abstract protected function createSchemaProvider(?array $config = null): SchemaProviderInterface;

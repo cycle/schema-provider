@@ -18,36 +18,37 @@ final class SimpleCacheSchemaProviderTest extends BaseSchemaProvider
 
     private SimpleCacheActionLogger $cacheService;
 
+    #[\Testo\Test]
     public function testConfig(): void
     {
-        $this->assertSame(
-            ['key' => 'foo'],
-            SimpleCacheSchemaProvider::config('foo'),
-        );
+        \Testo\Assert::same(SimpleCacheSchemaProvider::config('foo'), ['key' => 'foo']);
     }
 
+    #[\Testo\Test]
     public function testDefaultState(): void
     {
         $provider = $this->createSchemaProvider();
 
-        $this->assertNull($provider->read());
-        $this->assertTrue($this->cacheService->has(self::CACHE_KEY));
+        \Testo\Assert::null($provider->read());
+        \Testo\Assert::true($this->cacheService->has(self::CACHE_KEY));
     }
 
+    #[\Testo\Test]
     public function testClear(): void
     {
         $provider = $this->createSchemaProvider(self::READ_CONFIG);
 
         $result = $provider->clear();
 
-        $this->assertTrue($result);
-        $this->assertSame([
+        \Testo\Assert::true($result);
+        \Testo\Assert::same($this->cacheService->getActionKeyList(), [
             [Action::HAS, self::CACHE_KEY],
             [Action::DELETE, self::CACHE_KEY],
-        ], $this->cacheService->getActionKeyList());
-        $this->assertFalse($this->cacheService->has(self::CACHE_KEY));
+        ]);
+        \Testo\Assert::false($this->cacheService->has(self::CACHE_KEY));
     }
 
+    #[\Testo\Test]
     public function testClearNotExistingKey(): void
     {
         $key = 'key-not-exists';
@@ -55,20 +56,22 @@ final class SimpleCacheSchemaProviderTest extends BaseSchemaProvider
 
         $result = $provider->clear();
 
-        $this->assertTrue($result);
-        $this->assertSame([[Action::HAS, $key]], $this->cacheService->getActionKeyList());
+        \Testo\Assert::true($result);
+        \Testo\Assert::same($this->cacheService->getActionKeyList(), [[Action::HAS, $key]]);
     }
 
+    #[\Testo\Test]
     public function testClearWithCacheOnDeleteError(): void
     {
         $provider = $this->createSchemaProvider(self::READ_CONFIG);
         $this->cacheService->getCacheService()->returnOnDelete = false;
 
-        $this->expectException(SchemaProviderException::class);
+        \Testo\Expect::exception(SchemaProviderException::class);
 
         $provider->clear();
     }
 
+    #[\Testo\Test]
     public function testWriteOnReadFromNextProvider(): void
     {
         $key = 'key-not-exists';
@@ -76,14 +79,12 @@ final class SimpleCacheSchemaProviderTest extends BaseSchemaProvider
         $nextProvider = new ArraySchemaProvider(self::READ_CONFIG_SCHEMA);
 
         $result = $provider->read($nextProvider);
-        $this->assertSame(
-            [[Action::GET, $key], [Action::SET, $key]],
-            $this->cacheService->getActionKeyList(),
-        );
-        $this->assertSame(self::READ_CONFIG_SCHEMA, $result);
-        $this->assertSame(self::READ_CONFIG_SCHEMA, $this->cacheService->get($key));
+        \Testo\Assert::same($this->cacheService->getActionKeyList(), [[Action::GET, $key], [Action::SET, $key]]);
+        \Testo\Assert::same($result, self::READ_CONFIG_SCHEMA);
+        \Testo\Assert::same($this->cacheService->get($key), self::READ_CONFIG_SCHEMA);
     }
 
+    #[\Testo\Lifecycle\BeforeTest]
     protected function setUp(): void
     {
         $this->prepareCacheService();

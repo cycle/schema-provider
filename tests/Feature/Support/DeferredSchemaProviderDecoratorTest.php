@@ -29,6 +29,7 @@ final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
 
     protected ContainerInterface $container;
 
+    #[\Testo\Test]
     public function testReadWithLatestProvider()
     {
         $provider1 = new ArraySchemaProvider(null);
@@ -40,11 +41,12 @@ final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
 
         $result = $deferred2->read($latestProvider);
 
-        $this->assertSame(self::ANOTHER_SCHEMA, $result);
-        $this->assertSame(self::ANOTHER_SCHEMA, $provider1->read());
-        $this->assertSame(self::ANOTHER_SCHEMA, $provider2->read());
+        \Testo\Assert::same($result, self::ANOTHER_SCHEMA);
+        \Testo\Assert::same($provider1->read(), self::ANOTHER_SCHEMA);
+        \Testo\Assert::same($provider2->read(), self::ANOTHER_SCHEMA);
     }
 
+    #[\Testo\Test]
     public function testNextDeferredProviderImmutabilityOnReadWithLatestProvider()
     {
         $this->prepareContainer([
@@ -59,10 +61,11 @@ final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
         $result1 = $deferred2->read($latestProvider);
         $result2 = $deferred2->read();
 
-        $this->assertSame(self::ANOTHER_SCHEMA, $result1);
-        $this->assertNull($result2);
+        \Testo\Assert::same($result1, self::ANOTHER_SCHEMA);
+        \Testo\Assert::null($result2);
     }
 
+    #[\Testo\Test]
     public function testUseSameProviderIfLatestProviderIsExists()
     {
         $provider1 = new ConfigurableSchemaProvider(null);
@@ -78,10 +81,11 @@ final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
         $result1 = $deferred2->read($latestProvider);
         $result2 = $deferred1->read();
 
-        $this->assertSame(self::ANOTHER_SCHEMA, $result1);
-        $this->assertSame(self::ANOTHER_SCHEMA, $result2);
+        \Testo\Assert::same($result1, self::ANOTHER_SCHEMA);
+        \Testo\Assert::same($result2, self::ANOTHER_SCHEMA);
     }
 
+    #[\Testo\Lifecycle\BeforeTest]
     protected function setUp(): void
     {
         $this->prepareContainer();

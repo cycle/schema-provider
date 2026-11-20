@@ -8,48 +8,54 @@ use Cycle\Schema\Provider\Exception\DuplicateRoleException;
 use Cycle\Schema\Provider\Support\SchemaMerger;
 use PHPUnit\Framework\TestCase;
 
-final class SchemaMergerTest extends TestCase
+final class SchemaMergerTest
 {
+    #[\Testo\Test]
     public function testMergeNulls(): void
     {
         $result = $this->createMerger()->merge(null, null);
 
-        $this->assertNull($result);
+        \Testo\Assert::null($result);
     }
 
+    #[\Testo\Test]
     public function testMergeNullAndEmptyArray(): void
     {
         $result = $this->createMerger()->merge(null, []);
 
-        $this->assertSame([], $result);
+        \Testo\Assert::same($result, []);
     }
 
+    #[\Testo\Test]
     public function testMergeDifferentRoles(): void
     {
         $result = $this->createMerger()->merge(['user' => []], ['post' => []], []);
 
-        $this->assertSame(['user' => [], 'post' => []], $result);
+        \Testo\Assert::same($result, ['user' => [], 'post' => []]);
     }
 
+    #[\Testo\Test]
     public function testMergeSameRoles(): void
     {
         $result = $this->createMerger()->merge(['user' => []], ['post' => [], 'user' => [], 'tag' => []]);
 
-        $this->assertSame(['user' => [], 'post' => [], 'tag' => []], $result);
+        \Testo\Assert::same($result, ['user' => [], 'post' => [], 'tag' => []]);
     }
 
+    #[\Testo\Test]
     public function testMergeConflictRoles(): void
     {
-        $this->expectException(DuplicateRoleException::class);
+        \Testo\Expect::exception(DuplicateRoleException::class);
 
         $this->createMerger()->merge(['user' => []], ['post' => [], 'user' => ['']]);
     }
 
+    #[\Testo\Test]
     public function testMergeNumericKeys(): void
     {
         $result = $this->createMerger()->merge([['foo'], ['bar']], [['bar'], ['baz']]);
 
-        $this->assertSame([['foo'], ['bar'], ['bar'], ['baz']], $result);
+        \Testo\Assert::same($result, [['foo'], ['bar'], ['bar'], ['baz']]);
     }
 
     private function createMerger(): SchemaMerger
