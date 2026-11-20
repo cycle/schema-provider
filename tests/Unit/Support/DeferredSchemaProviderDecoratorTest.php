@@ -86,6 +86,23 @@ final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
         Assert::same($result2, self::ANOTHER_SCHEMA);
     }
 
+    public function testWithConfigKeepsEarlierConfig(): void
+    {
+        $deferred = $this
+            ->createSchemaProvider(
+                [ConfigurableSchemaProvider::OPTION_WRITABLE => false],
+                new ConfigurableSchemaProvider(null),
+            )
+            ->withConfig([ConfigurableSchemaProvider::OPTION_CLEARABLE => false]);
+
+        $result1 = $deferred->read(new ArraySchemaProvider(self::ANOTHER_SCHEMA));
+        $result2 = $deferred->read();
+
+        Assert::same($result1, self::ANOTHER_SCHEMA);
+        Assert::null($result2);
+        Assert::false($deferred->clear());
+    }
+
     #[BeforeTest]
     protected function setUp(): void
     {
