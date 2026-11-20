@@ -2,30 +2,35 @@
 
 declare(strict_types=1);
 
-namespace Cycle\Schema\Provider\Tests\Feature;
+namespace Cycle\Schema\Provider\Tests\Unit;
 
 use Cycle\Schema\Provider\Exception\ConfigurationException;
 use Cycle\Schema\Provider\Exception\SchemaProviderException;
 use Cycle\Schema\Provider\PhpFileSchemaProvider;
-use Cycle\Schema\Provider\Tests\Feature\Stub\ArraySchemaProvider;
+use Cycle\Schema\Provider\Tests\Fixtures\ArraySchemaProvider;
+use Testo\Assert;
+use Testo\Assert\ExpectException;
+use Testo\Expect;
+use Testo\Lifecycle\AfterTest;
+use Testo\Lifecycle\BeforeTest;
+use Testo\Test;
 
+#[Test]
 final class PhpFileSchemaProviderTest extends BaseSchemaProvider
 {
-    protected const READ_CONFIG = ['file' => __DIR__ . '/Stub/PhpFileSchemaProvider/simple_schema.php'];
+    protected const READ_CONFIG = ['file' => __DIR__ . '/../Fixtures/PhpFileSchemaProvider/simple_schema.php'];
     protected const READ_CONFIG_SCHEMA = ['user' => []];
     private const WRITE_CONFIG = ['file' => self::TMP_FILE];
     private const WRITE_ONLY_CONFIG = ['file' => self::TMP_FILE, 'mode' => PhpFileSchemaProvider::MODE_WRITE_ONLY];
-    private const TMP_FILE = __DIR__ . '/Stub/PhpFileSchemaProvider/write.php';
+    private const TMP_FILE = __DIR__ . '/../Fixtures/PhpFileSchemaProvider/write.php';
 
-    #[\Testo\Test]
     public function testConfig(): void
     {
-        \Testo\Assert::same(PhpFileSchemaProvider::config('foo'), ['file' => 'foo', 'mode' => PhpFileSchemaProvider::MODE_READ_AND_WRITE]);
+        Assert::same(PhpFileSchemaProvider::config('foo'), ['file' => 'foo', 'mode' => PhpFileSchemaProvider::MODE_READ_AND_WRITE]);
 
-        \Testo\Assert::same(PhpFileSchemaProvider::config('foo', PhpFileSchemaProvider::MODE_WRITE_ONLY), ['file' => 'foo', 'mode' => PhpFileSchemaProvider::MODE_WRITE_ONLY]);
+        Assert::same(PhpFileSchemaProvider::config('foo', PhpFileSchemaProvider::MODE_WRITE_ONLY), ['file' => 'foo', 'mode' => PhpFileSchemaProvider::MODE_WRITE_ONLY]);
     }
 
-    #[\Testo\Test]
     public function testReadFromNextProvider(): void
     {
         $provider1 = $this->createSchemaProvider(self::WRITE_CONFIG);
@@ -33,79 +38,70 @@ final class PhpFileSchemaProviderTest extends BaseSchemaProvider
 
         $result = $provider1->read($provider2);
 
-        \Testo\Assert::same($result, self::READ_CONFIG_SCHEMA);
+        Assert::same($result, self::READ_CONFIG_SCHEMA);
     }
 
-    #[\Testo\Test]
     public function testDefaultState(): void
     {
         $provider = $this->createSchemaProvider();
 
-        \Testo\Assert::null($provider->read());
+        Assert::null($provider->read());
     }
 
-    #[\Testo\Test]
+    #[ExpectException(ConfigurationException::class)]
     public function testWithConfigWithoutRequiredParams(): void
     {
-        \Testo\Expect::exception(ConfigurationException::class);
-
         $this->createSchemaProvider([]);
     }
 
-    #[\Testo\Test]
     public function testWithConfigWithBadParams(): void
     {
-        \Testo\Expect::exception(SchemaProviderException::class)->withMessageMatchingRegex('/parameter must not be empty/');
+        Expect::exception(SchemaProviderException::class)->withMessageMatchingRegex('/parameter must not be empty/');
 
         $nextProvider = new ArraySchemaProvider(self::READ_CONFIG_SCHEMA);
 
         $this->createSchemaProvider(null)->read($nextProvider);
     }
 
-    #[\Testo\Test]
     public function testModeWriteOnlyWithoutSchemaFromNextProvider(): void
     {
         $provider = $this->createSchemaProvider(self::WRITE_ONLY_CONFIG);
         $nextProvider = new ArraySchemaProvider(null);
 
-        \Testo\Assert::null($provider->read($nextProvider));
-        \Testo\Assert::false(\file_exists(self::TMP_FILE), 'Empty schema file is created.');
+        Assert::null($provider->read($nextProvider));
+        Assert::false(\file_exists(self::TMP_FILE), 'Empty schema file is created.');
     }
 
-    #[\Testo\Test]
     public function testModeWriteOnlyWithSchemaFromNextProvider(): void
     {
         $provider = $this->createSchemaProvider(self::WRITE_ONLY_CONFIG);
         $nextProvider = new ArraySchemaProvider(self::READ_CONFIG_SCHEMA);
-        \Testo\Assert::same($provider->read($nextProvider), self::READ_CONFIG_SCHEMA);
-        \Testo\Assert::true(\file_exists(self::TMP_FILE), 'Schema file is not created.');
+        Assert::same($provider->read($nextProvider), self::READ_CONFIG_SCHEMA);
+        Assert::true(\file_exists(self::TMP_FILE), 'Schema file is not created.');
     }
 
-    #[\Testo\Test]
     public function testModeWriteOnlyWithoutNextProviderException(): void
     {
         $config = self::READ_CONFIG;
         $config['mode'] = PhpFileSchemaProvider::MODE_WRITE_ONLY;
         $provider = $this->createSchemaProvider($config);
 
-        \Testo\Expect::exception(SchemaProviderException::class);
+        Expect::exception(SchemaProviderException::class);
 
         $provider->read();
     }
 
-    #[\Testo\Test]
     public function testModeWriteOnlyExceptionOnRead(): void
     {
         $config = self::READ_CONFIG;
         $config['mode'] = PhpFileSchemaProvider::MODE_WRITE_ONLY;
         $provider = $this->createSchemaProvider($config);
 
-        \Testo\Expect::exception(SchemaProviderException::class);
+        Expect::exception(SchemaProviderException::class);
 
         $provider->read();
     }
 
-    #[\Testo\Test]
     public function testClear(): void
     {
         $this->prepareTmpFile();
@@ -113,52 +109,48 @@ final class PhpFileSchemaProviderTest extends BaseSchemaProvider
 
         $result = $provider->clear();
 
-        \Testo\Assert::true($result);
-        \Testo\Assert::false(\file_exists(self::TMP_FILE));
+        Assert::true($result);
+        Assert::false(\file_exists(self::TMP_FILE));
     }
 
-    #[\Testo\Test]
     public function testClearNotExistingFile(): void
     {
         $provider = $this->createSchemaProvider(self::WRITE_CONFIG);
 
         $result = $provider->clear();
 
-        \Testo\Assert::true($result);
+        Assert::true($result);
     }
 
-    #[\Testo\Test]
     public function testClearNotAFile(): void
     {
         $provider = $this->createSchemaProvider(['file' => __DIR__]);
 
         $result = $provider->clear();
 
-        \Testo\Assert::false($result);
+        Assert::false($result);
     }
 
-    #[\Testo\Test]
     public function testPrepareTmpFile(): void
     {
         $this->prepareTmpFile();
-        \Testo\Assert::true(\file_exists(self::TMP_FILE));
+        Assert::true(\file_exists(self::TMP_FILE));
     }
 
-    #[\Testo\Test]
     public function testRemoveTmpFile(): void
     {
         $this->prepareTmpFile();
         $this->removeTmpFile();
-        \Testo\Assert::false(\file_exists(self::TMP_FILE));
+        Assert::false(\file_exists(self::TMP_FILE));
     }
 
-    #[\Testo\Lifecycle\BeforeTest]
+    #[BeforeTest]
     protected function setUp(): void
     {
         $this->removeTmpFile();
     }
 
-    #[\Testo\Lifecycle\AfterTest]
+    #[AfterTest]
     protected function tearDown(): void
     {
         $this->removeTmpFile();

@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Cycle\Schema\Provider\Tests\Unit\Exception;
 
 use Cycle\Schema\Provider\Exception\BadDeclarationException;
-use PHPUnit\Framework\TestCase;
+use Testo\Assert;
+use Testo\Data\DataProvider;
+use Testo\Test;
 
+#[Test]
 final class BadDeclarationExceptionTest
 {
     private const DEFAULT_CLASS = \stdClass::class;
@@ -23,24 +26,22 @@ final class BadDeclarationExceptionTest
         yield [[], 'Array'];
     }
 
-    #[\Testo\Test]
-    #[\Testo\Data\DataProvider('argumentValueProvider')]
+    #[DataProvider('argumentValueProvider')]
     public function testTypeMessage(mixed $value, string $message): void
     {
         $exception = $this->prepareException($value);
         $pattern = sprintf(self::RECEIVED_PATTERN, $message);
 
-        \Testo\Assert::string($exception->getMessage())->matchesRegex($pattern);
+        Assert::string($exception->getMessage())->matchesRegex($pattern);
     }
 
-    #[\Testo\Test]
     public function testDefaultState(): void
     {
         $exception = $this->prepareException(null);
 
-        \Testo\Assert::instanceOf($exception, \Throwable::class);
-        \Testo\Assert::same($exception->getCode(), 0);
-        \Testo\Assert::string($exception->getMessage())->matchesRegex(self::DEFAULT_MESSAGE_PATTERN);
+        Assert::instanceOf($exception, \Throwable::class);
+        Assert::same($exception->getCode(), 0);
+        Assert::string($exception->getMessage())->matchesRegex(self::DEFAULT_MESSAGE_PATTERN);
     }
 
     protected function prepareException(

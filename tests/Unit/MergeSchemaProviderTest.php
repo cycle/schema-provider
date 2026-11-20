@@ -2,14 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Cycle\Schema\Provider\Tests\Feature;
+namespace Cycle\Schema\Provider\Tests\Unit;
 
 use Cycle\ORM\SchemaInterface as Schema;
 use Cycle\Schema\Provider\Exception\DuplicateRoleException;
 use Cycle\Schema\Provider\MergeSchemaProvider;
-use Cycle\Schema\Provider\Tests\Feature\Stub\ArraySchemaProvider;
-use Cycle\Schema\Provider\Tests\Feature\Support\BaseProviderCollector;
+use Cycle\Schema\Provider\Tests\Fixtures\ArraySchemaProvider;
+use Cycle\Schema\Provider\Tests\Unit\Support\BaseProviderCollector;
+use Testo\Assert;
+use Testo\Expect;
+use Testo\Test;
 
+#[Test]
 final class MergeSchemaProviderTest extends BaseProviderCollector
 {
     protected const READ_CONFIG = [
@@ -31,18 +35,16 @@ final class MergeSchemaProviderTest extends BaseProviderCollector
         ],
     ];
 
-    #[\Testo\Test]
     public function testMergeSameValueConflict(): void
     {
         $provider = $this->createSchemaProvider([...self::READ_CONFIG, new ArraySchemaProvider(self::SCHEMA_PART_1)]);
         $schema = $provider->read();
-        \Testo\Assert::same($schema, self::READ_CONFIG_SCHEMA);
+        Assert::same($schema, self::READ_CONFIG_SCHEMA);
     }
 
-    #[\Testo\Test]
     public function testMergeDifferentValueConflict(): void
     {
-        \Testo\Expect::exception(DuplicateRoleException::class);
+        Expect::exception(DuplicateRoleException::class);
 
         $provider = $this->createSchemaProvider([...self::READ_CONFIG, new ArraySchemaProvider(self::SCHEMA_CONFLICT)]);
         $provider->read();
