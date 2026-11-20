@@ -128,8 +128,22 @@ final class FromFilesSchemaProviderTest extends BaseSchemaProvider
                 'strict' => true,
             ]);
 
-        Expect::exception(SchemaFileNotFoundException::class);
+        Expect::exception(SchemaFileNotFoundException::class)->withMessage(\sprintf(
+            'Schema file `%s` not found.',
+            \str_replace('\\', '/', __DIR__) . '/../Fixtures/FromFilesSchemaProvider/schema-not-exists.php',
+        ));
         $schemaProvider->read();
+    }
+
+    public function testReadWithBackslashSeparators(): void
+    {
+        $schemaProvider = $this->createSchemaProvider();
+
+        $data = $schemaProvider
+            ->withConfig(['files' => [__DIR__ . '\\..\\Fixtures\\FromFilesSchemaProvider\\schema1.php'], 'strict' => true])
+            ->read();
+
+        Assert::same($data, ['user' => []]);
     }
 
     public function testRead(): void
