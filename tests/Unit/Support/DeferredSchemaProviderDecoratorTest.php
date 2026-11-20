@@ -2,18 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Cycle\Schema\Provider\Tests\Feature\Support;
+namespace Cycle\Schema\Provider\Tests\Unit\Support;
 
 use Cycle\ORM\SchemaInterface as Schema;
 use Cycle\Schema\Provider\SchemaProviderInterface;
 use Cycle\Schema\Provider\Support\DeferredSchemaProviderDecorator;
-use Cycle\Schema\Provider\Tests\Feature\BaseSchemaProvider;
-use Cycle\Schema\Provider\Tests\Feature\Stub\ArraySchemaProvider;
-use Cycle\Schema\Provider\Tests\Feature\Stub\ConfigurableSchemaProvider;
-use Cycle\Schema\Provider\Tests\Feature\Stub\SameOriginProvider;
+use Cycle\Schema\Provider\Tests\Fixtures\ArraySchemaProvider;
+use Cycle\Schema\Provider\Tests\Fixtures\ConfigurableSchemaProvider;
+use Cycle\Schema\Provider\Tests\Fixtures\SameOriginProvider;
+use Cycle\Schema\Provider\Tests\Unit\BaseSchemaProvider;
 use Psr\Container\ContainerInterface;
+use Testo\Assert;
+use Testo\Lifecycle\BeforeTest;
+use Testo\Test;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 
+#[Test]
 final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
 {
     protected const READ_CONFIG = self::READ_CONFIG_SCHEMA;
@@ -29,7 +33,7 @@ final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
 
     protected ContainerInterface $container;
 
-    public function testReadWithLatestProvider()
+    public function testReadWithLatestProvider(): void
     {
         $provider1 = new ArraySchemaProvider(null);
         $provider2 = new ArraySchemaProvider(null);
@@ -40,12 +44,12 @@ final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
 
         $result = $deferred2->read($latestProvider);
 
-        $this->assertSame(self::ANOTHER_SCHEMA, $result);
-        $this->assertSame(self::ANOTHER_SCHEMA, $provider1->read());
-        $this->assertSame(self::ANOTHER_SCHEMA, $provider2->read());
+        Assert::same($result, self::ANOTHER_SCHEMA);
+        Assert::same($provider1->read(), self::ANOTHER_SCHEMA);
+        Assert::same($provider2->read(), self::ANOTHER_SCHEMA);
     }
 
-    public function testNextDeferredProviderImmutabilityOnReadWithLatestProvider()
+    public function testNextDeferredProviderImmutabilityOnReadWithLatestProvider(): void
     {
         $this->prepareContainer([
             SameOriginProvider::class => (new SameOriginProvider(null))
@@ -59,11 +63,11 @@ final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
         $result1 = $deferred2->read($latestProvider);
         $result2 = $deferred2->read();
 
-        $this->assertSame(self::ANOTHER_SCHEMA, $result1);
-        $this->assertNull($result2);
+        Assert::same($result1, self::ANOTHER_SCHEMA);
+        Assert::null($result2);
     }
 
-    public function testUseSameProviderIfLatestProviderIsExists()
+    public function testUseSameProviderIfLatestProviderIsExists(): void
     {
         $provider1 = new ConfigurableSchemaProvider(null);
         $this->prepareContainer([ConfigurableSchemaProvider::class => $provider1]);
@@ -78,10 +82,11 @@ final class DeferredSchemaProviderDecoratorTest extends BaseSchemaProvider
         $result1 = $deferred2->read($latestProvider);
         $result2 = $deferred1->read();
 
-        $this->assertSame(self::ANOTHER_SCHEMA, $result1);
-        $this->assertSame(self::ANOTHER_SCHEMA, $result2);
+        Assert::same($result1, self::ANOTHER_SCHEMA);
+        Assert::same($result2, self::ANOTHER_SCHEMA);
     }
 
+    #[BeforeTest]
     protected function setUp(): void
     {
         $this->prepareContainer();

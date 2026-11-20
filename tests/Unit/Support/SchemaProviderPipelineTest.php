@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Cycle\Schema\Provider\Tests\Feature\Support;
+namespace Cycle\Schema\Provider\Tests\Unit\Support;
 
 use Cycle\Schema\Provider\Support\SchemaProviderPipeline;
-use Cycle\Schema\Provider\Tests\Feature\Stub\ArraySchemaProvider;
+use Cycle\Schema\Provider\Tests\Fixtures\ArraySchemaProvider;
+use Testo\Assert;
+use Testo\Test;
 
+#[Test]
 final class SchemaProviderPipelineTest extends BaseProviderCollector
 {
     protected const READ_CONFIG = [
@@ -24,7 +27,7 @@ final class SchemaProviderPipelineTest extends BaseProviderCollector
 
         $provider = $this->createSchemaProvider(['goodProvider', 'badProvider', 'undefined provider']);
 
-        $this->assertSame(self::READ_CONFIG_SCHEMA, $provider->read());
+        Assert::same($provider->read(), self::READ_CONFIG_SCHEMA);
     }
 
     protected function createSchemaProvider(?array $config = []): SchemaProviderPipeline

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Cycle\Schema\Provider\Tests\Feature\Stub;
+namespace Cycle\Schema\Provider\Tests\Fixtures;
 
 use Cycle\Schema\Provider\SchemaProviderInterface;
 

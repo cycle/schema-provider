@@ -2,46 +2,48 @@
 
 declare(strict_types=1);
 
-namespace Cycle\Schema\Provider\Tests\Feature\Support;
+namespace Cycle\Schema\Provider\Tests\Unit\Support;
 
 use Cycle\Schema\Provider\Exception\DuplicateRoleException;
 use Cycle\Schema\Provider\Support\SchemaMerger;
-use PHPUnit\Framework\TestCase;
+use Testo\Assert;
+use Testo\Assert\ExpectException;
+use Testo\Test;
 
-final class SchemaMergerTest extends TestCase
+#[Test]
+final class SchemaMergerTest
 {
     public function testMergeNulls(): void
     {
         $result = $this->createMerger()->merge(null, null);
 
-        $this->assertNull($result);
+        Assert::null($result);
     }
 
     public function testMergeNullAndEmptyArray(): void
     {
         $result = $this->createMerger()->merge(null, []);
 
-        $this->assertSame([], $result);
+        Assert::same($result, []);
     }
 
     public function testMergeDifferentRoles(): void
     {
         $result = $this->createMerger()->merge(['user' => []], ['post' => []], []);
 
-        $this->assertSame(['user' => [], 'post' => []], $result);
+        Assert::same($result, ['user' => [], 'post' => []]);
     }
 
     public function testMergeSameRoles(): void
     {
         $result = $this->createMerger()->merge(['user' => []], ['post' => [], 'user' => [], 'tag' => []]);
 
-        $this->assertSame(['user' => [], 'post' => [], 'tag' => []], $result);
+        Assert::same($result, ['user' => [], 'post' => [], 'tag' => []]);
     }
 
+    #[ExpectException(DuplicateRoleException::class)]
     public function testMergeConflictRoles(): void
     {
-        $this->expectException(DuplicateRoleException::class);
-
         $this->createMerger()->merge(['user' => []], ['post' => [], 'user' => ['']]);
     }
 
@@ -49,7 +51,7 @@ final class SchemaMergerTest extends TestCase
     {
         $result = $this->createMerger()->merge([['foo'], ['bar']], [['bar'], ['baz']]);
 
-        $this->assertSame([['foo'], ['bar'], ['bar'], ['baz']], $result);
+        Assert::same($result, [['foo'], ['bar'], ['bar'], ['baz']]);
     }
 
     private function createMerger(): SchemaMerger

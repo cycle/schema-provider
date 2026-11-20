@@ -2,17 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Cycle\Schema\Provider\Tests\Feature\Support;
+namespace Cycle\Schema\Provider\Tests\Unit\Support;
 
 use Cycle\ORM\SchemaInterface as Schema;
 use Cycle\Schema\Provider\Exception\BadDeclarationException;
 use Cycle\Schema\Provider\Exception\CumulativeException;
 use Cycle\Schema\Provider\Exception\SchemaProviderException;
-use Cycle\Schema\Provider\Tests\Feature\BaseSchemaProvider;
-use Cycle\Schema\Provider\Tests\Feature\Stub\ArraySchemaProvider;
-use Cycle\Schema\Provider\Tests\Feature\Stub\ConfigurableSchemaProvider;
-use Cycle\Schema\Provider\Tests\Feature\Stub\SameOriginProvider;
+use Cycle\Schema\Provider\Tests\Fixtures\ArraySchemaProvider;
+use Cycle\Schema\Provider\Tests\Fixtures\ConfigurableSchemaProvider;
+use Cycle\Schema\Provider\Tests\Fixtures\SameOriginProvider;
+use Cycle\Schema\Provider\Tests\Unit\BaseSchemaProvider;
 use Psr\Container\ContainerInterface;
+use Testo\Assert;
+use Testo\Expect;
+use Testo\Lifecycle\BeforeTest;
+use Testo\Test;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 
 abstract class BaseProviderCollector extends BaseSchemaProvider
@@ -28,15 +32,17 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
 
     // Definition resolving test
 
+    #[Test]
     public function testProviderFromString(): void
     {
         $this->prepareContainer(['provider' => new ArraySchemaProvider(self::READ_CONFIG_SCHEMA)]);
 
         $provider = $this->createSchemaProvider(['provider']);
 
-        $this->assertSame(self::READ_CONFIG_SCHEMA, $provider->read());
+        Assert::same($provider->read(), self::READ_CONFIG_SCHEMA);
     }
 
+    #[Test]
     public function testProviderFromArray(): void
     {
         $this->prepareContainer(['provider' => new ArraySchemaProvider(self::READ_CONFIG_SCHEMA)]);
@@ -44,36 +50,40 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
 
         $provider = $this->createSchemaProvider(['provider' => $newSchema]);
 
-        $this->assertSame($newSchema, $provider->read());
+        Assert::same($provider->read(), $newSchema);
     }
 
+    #[Test]
     public function testIgnoreStringKeyIfDefinitionIsNotArray(): void
     {
         $this->prepareContainer(['provider' => new ArraySchemaProvider(self::READ_CONFIG_SCHEMA)]);
 
         $provider = $this->createSchemaProvider(['provider' => new ArraySchemaProvider(self::ANOTHER_SCHEMA)]);
 
-        $this->assertSame(self::ANOTHER_SCHEMA, $provider->read());
+        Assert::same($provider->read(), self::ANOTHER_SCHEMA);
     }
 
+    #[Test]
     public function testProviderAsObject(): void
     {
         $provider = $this->createSchemaProvider([new ArraySchemaProvider(self::READ_CONFIG_SCHEMA)]);
 
-        $this->assertSame(self::READ_CONFIG_SCHEMA, $provider->read());
+        Assert::same($provider->read(), self::READ_CONFIG_SCHEMA);
     }
 
+    #[Test]
     public function testProviderAsBadClassObject(): void
     {
         $provider = $this->createSchemaProvider(['BadSchemaProvider']);
 
-        $this->expectException(BadDeclarationException::class);
+        Expect::exception(BadDeclarationException::class);
 
         $provider->read();
     }
 
     // Clear test
 
+    #[Test]
     public function testClearWithoutProviders(): void
     {
         $provider = $this->createSchemaProvider([]);
@@ -81,18 +91,20 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
         $result = $provider->clear();
 
         // exception was not thrown
-        $this->assertFalse($result);
+        Assert::false($result);
     }
 
+    #[Test]
     public function testClearNotConfigured(): void
     {
         $provider = $this->createSchemaProvider(null);
 
-        $this->expectException(SchemaProviderException::class);
+        Expect::exception(SchemaProviderException::class);
 
         $provider->clear();
     }
 
+    #[Test]
     public function testClearResultFalse(): void
     {
         $provider1 = (new ConfigurableSchemaProvider(self::ANOTHER_SCHEMA))
@@ -107,9 +119,10 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
         $result = $provider->clear();
 
         // exception was not thrown
-        $this->assertFalse($result);
+        Assert::false($result);
     }
 
+    #[Test]
     public function testClearResultTrue(): void
     {
         $provider1 = (new ConfigurableSchemaProvider(self::ANOTHER_SCHEMA))
@@ -124,9 +137,10 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
         $result = $provider->clear();
 
         // exception was not thrown
-        $this->assertTrue($result);
+        Assert::true($result);
     }
 
+    #[Test]
     public function testClearAllProvidersIndependentFromWriteable(): void
     {
         $writeable = new ArraySchemaProvider(self::READ_CONFIG_SCHEMA);
@@ -141,12 +155,13 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
 
         $provider->clear();
 
-        $this->assertNull($writeable->read());
-        $this->assertNull($notWriteable1->read());
-        $this->assertNull($origin->read());
-        $this->assertSame(self::ANOTHER_SCHEMA, $notWriteable2->read());
+        Assert::null($writeable->read());
+        Assert::null($notWriteable1->read());
+        Assert::null($origin->read());
+        Assert::same($notWriteable2->read(), self::ANOTHER_SCHEMA);
     }
 
+    #[Test]
     public function testClearWithException(): void
     {
         $provider1 = (new SameOriginProvider(self::READ_CONFIG_SCHEMA))
@@ -155,7 +170,7 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
         $provider3 = new ArraySchemaProvider(self::ANOTHER_SCHEMA);
         $provider = $this->createSchemaProvider([$provider1, $provider2, $provider3]);
 
-        $this->expectException(CumulativeException::class);
+        Expect::exception(CumulativeException::class);
 
         try {
             $provider->clear();
@@ -163,32 +178,35 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
             throw $e;
         } finally {
             // first provider throws exception
-            $this->assertSame(self::READ_CONFIG_SCHEMA, $provider1->read());
+            Assert::same($provider1->read(), self::READ_CONFIG_SCHEMA);
             // next provider will be cleared
-            $this->assertNull($provider2->read());
+            Assert::null($provider2->read());
             // last provider will be cleared
-            $this->assertNull($provider3->read());
+            Assert::null($provider3->read());
         }
     }
 
     // Reading test
 
+    #[Test]
     public function testReadNotConfigured(): void
     {
         $provider = $this->createSchemaProvider(null);
 
-        $this->expectException(SchemaProviderException::class);
+        Expect::exception(SchemaProviderException::class);
 
         $provider->read();
     }
 
+    #[Test]
     public function testReadWithoutProviders(): void
     {
         $provider = $this->createSchemaProvider([]);
 
-        $this->assertNull($provider->read());
+        Assert::null($provider->read());
     }
 
+    #[Test]
     public function testReadWithException(): void
     {
         $this->prepareContainer([
@@ -196,20 +214,22 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
                 ->withConfig([SameOriginProvider::EXCEPTION_ON_READ => true]),
         ]);
 
-        $this->expectException(SchemaProviderException::class);
+        Expect::exception(SchemaProviderException::class);
 
         $this->createSchemaProvider(['withoutSchema'])->read();
     }
 
+    #[Test]
     public function testReadFromOneProvider(): void
     {
         $provider = $this->createSchemaProvider([new ArraySchemaProvider(self::READ_CONFIG_SCHEMA)]);
 
         $schema = $provider->read();
 
-        $this->assertSame(self::READ_CONFIG_SCHEMA, $schema);
+        Assert::same($schema, self::READ_CONFIG_SCHEMA);
     }
 
+    #[Test]
     public function testReadingOrderWithNullIgnoring(): void
     {
         $this->prepareContainer([
@@ -219,9 +239,10 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
 
         $provider = $this->createSchemaProvider(['withoutSchema', 'withSchema']);
 
-        $this->assertNotNull($provider->read());
+        Assert::notNull($provider->read());
     }
 
+    #[Test]
     public function testReadWithAlternativeProvider(): void
     {
         $provider = $this->createSchemaProvider([
@@ -233,19 +254,21 @@ abstract class BaseProviderCollector extends BaseSchemaProvider
         $schema1 = $provider->read();
         $schema2 = $provider->read(new ArraySchemaProvider(self::READ_CONFIG_SCHEMA));
 
-        $this->assertNull($schema1);
-        $this->assertSame(self::READ_CONFIG_SCHEMA, $schema2);
+        Assert::null($schema1);
+        Assert::same($schema2, self::READ_CONFIG_SCHEMA);
     }
 
+    #[Test]
     public function testReadWithoutProvidersButWithAlternativeProvider(): void
     {
         $provider = $this->createSchemaProvider();
 
         $schema2 = $provider->read(new ArraySchemaProvider(self::READ_CONFIG_SCHEMA));
 
-        $this->assertSame(self::READ_CONFIG_SCHEMA, $schema2);
+        Assert::same($schema2, self::READ_CONFIG_SCHEMA);
     }
 
+    #[BeforeTest]
     protected function setUp(): void
     {
         $this->prepareContainer();
